@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的个人博客</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo">MyBlog</div>
+            <nav class="nav-links">
+                <a href="index.html">首页</a>
+                <a href="#">归档</a>
+                <a href="editor.html">发布文章</a> <!-- 链接到编辑器 -->
+                <a href="#">关于我</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主体内容 -->
+    <main class="container main-layout">
+        <!-- 左侧文章列表 -->
+        <section id="article-list">
+            <!-- JS 将在此处插入文章卡片 -->
+        </section>
+
+        <!-- 右侧侧边栏 -->
+        <aside class="sidebar">
+            <!-- 搜索框 -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title">搜索</h3>
+                <div class="search-box">
+                    <input type="text" placeholder="输入关键词...">
+                </div>
+            </div>
+
+            <!-- 分类列表 -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title">分类</h3>
+                <ul class="category-list">
+                    <li><a href="#">前端技术 (12)</a></li>
+                    <li><a href="#">后端开发 (5)</a></li>
+                    <li><a href="#">生活随笔 (8)</a></li>
+                    <li><a href="#">读书笔记 (3)</a></li>
+                </ul>
+            </div>
+
+            <!-- 标签云 -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title">标签云</h3>
+                <div class="tag-cloud">
+                    <a href="#" class="tag">JavaScript</a>
+                    <a href="#" class="tag">CSS</a>
+                    <a href="#" class="tag">HTML</a>
+                    <a href="#" class="tag">React</a>
+                    <a href="#" class="tag">Node.js</a>
+                    <a href="#" class="tag">Git</a>
+                </div>
+            </div>
+
+            <!-- 近期文章 -->
+            <div class="sidebar-widget">
+                <h3 class="widget-title">近期文章</h3>
+                <ul class="recent-posts">
+                    <li><a href="#">探索现代前端开发趋势</a></li>
+                    <li><a href="#">CSS Grid 布局完全指南</a></li>
+                    <li><a href="#">如何构建高性能的个人博客</a></li>
+                </ul>
+            </div>
+        </aside>
+    </main>
+
+    <!-- 底部版权 -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 MyBlog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
