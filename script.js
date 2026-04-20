@@ -41,10 +41,10 @@ function renderArticles() {
                 <span>${article.category}</span>
             </div>
             <h2 class="article-title">
-                <a href="#">${article.title}</a>
+                <a href="post.html">${article.title}</a>
             </h2>
             <p class="article-excerpt">${article.excerpt}</p>
-            <a href="#" class="read-more-btn">阅读更多</a>
+            <a href="post.html" class="read-more-btn">阅读更多</a>
         </article>
     `).join('');
 }

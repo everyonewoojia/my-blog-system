@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>探索现代前端开发趋势 - 我的个人博客</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- 顶部导航 -->
+    <header>
+        <div class="container nav-container">
+            <div class="logo"><a href="index.html">MyBlog</a></div>
+            <nav class="nav-links">
+                <a href="index.html">首页</a>
+                <a href="#">归档</a>
+                <a href="editor.html">发布文章</a>
+                <a href="#">关于我</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- 主体内容：详情页通常不需要侧边栏，或者侧边栏可以简化，这里采用单列居中布局以提升阅读体验 -->
+    <main class="container" style="max-width: 800px; margin-top: 40px; margin-bottom: 60px;">
+        
+        <!-- 文章头部 -->
+        <article>
+            <header class="post-header">
+                <h1 class="post-title">探索现代前端开发趋势</h1>
+                <div class="post-meta">
+                    <span>📅 2023-10-25</span>
+                    <span>📂 前端技术</span>
+                    <span>👁️ 1,234 阅读</span>
+                </div>
+            </header>
+
+            <!-- 文章正文 -->
+            <div class="post-content">
+                <p>随着 Web 技术的飞速发展，前端开发已经不再是简单的切图和写 JavaScript。现代前端工程化、组件化以及服务端渲染（SSR）成为了主流话题。</p>
+                
+                <h2>1. 组件化的演进</h2>
+                <p>从早期的 jQuery 插件模式，到 React、Vue 带来的组件化革命，前端代码的组织方式发生了翻天覆地的变化。组件化不仅提高了代码复用率，还使得大型项目的维护变得更加容易。</p>
+                
+                <blockquote>
+                    "组件是 UI 的基本构建块，它们封装了结构、样式和行为。"
+                </blockquote>
+
+                <h2>2. 状态管理的复杂性</h2>
+                <p>随着应用复杂度的增加，如何管理全局状态成为了一个难题。Redux、Vuex 以及新兴的 Zustand、Jotai 等库提供了不同的解决方案。</p>
+                
+                <pre><code>// 一个简单的 React Counter 示例
+import React, { useState } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+  return (
+    &lt;button onClick={() => setCount(count + 1)}&gt;
+      Count: {count}
+    &lt;/button&gt;
+  );
+}</code></pre>
+
+                <h2>3. 性能优化</h2>
+                <p>首屏加载速度（FCP）和交互准备时间（TTI）是衡量用户体验的关键指标。通过代码分割（Code Splitting）、懒加载（Lazy Loading）以及使用 Next.js 等框架进行服务端渲染，我们可以显著提升性能。</p>
+                
+                <p>未来，随着 WebAssembly 和边缘计算的发展，前端开发的边界还将进一步拓展。</p>
+            </div>
+        </article>
+
+        <!-- 作者信息 -->
+        <div class="author-box">
+            <!-- 这里可以使用真实的图片链接，暂时使用占位符 -->
+            <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" alt="Author Avatar" class="author-avatar">
+            <div class="author-info">
+                <h4>博主 Admin</h4>
+                <p>全栈开发者，热爱分享技术与生活。专注于前端工程化与用户体验优化。</p>
+            </div>
+        </div>
+
+        <!-- 评论区 -->
+        <section class="comments-section">
+            <h3 class="section-title">评论 (2)</h3>
+            
+            <!-- 评论列表 -->
+            <div class="comment-list" id="comment-list">
+                <!-- 静态示例评论 -->
+                <div class="comment-item">
+                    <img src="https://ui-avatars.com/api/?name=User+A&background=random" alt="User A" class="comment-avatar">
+                    <div class="comment-body">
+                        <div class="comment-header">
+                            <span class="comment-author">User A</span>
+                            <span class="comment-date">2023-10-26 10:30</span>
+                        </div>
+                        <p class="comment-text">写得很好！特别是关于状态管理那部分，很有启发。</p>
+                    </div>
+                </div>
+                
+                <div class="comment-item">
+                    <img src="https://ui-avatars.com/api/?name=User+B&background=random" alt="User B" class="comment-avatar">
+                    <div class="comment-body">
+                        <div class="comment-header">
+                            <span class="comment-author">User B</span>
+                            <span class="comment-date">2023-10-26 14:15</span>
+                        </div>
+                        <p class="comment-text">期待下一篇关于 SSR 的深入文章。</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 发表评论表单 -->
+            <div class="comment-form">
+                <h3>发表评论</h3>
+                <form id="comment-form">
+                    <div class="form-group">
+                        <input type="text" id="comment-name" class="form-control" placeholder="您的昵称" required>
+                    </div>
+                    <div class="form-group">
+                        <textarea id="comment-content" class="form-control" placeholder="请输入您的评论..." required></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">提交评论</button>
+                </form>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 底部版权 -->
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 MyBlog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // 页面特定的 JS：处理评论提交
+        document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('comment-form');
+            const commentList = document.getElementById('comment-list');
+
+            if (form) {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const nameInput = document.getElementById('comment-name');
+                    const contentInput = document.getElementById('comment-content');
+                    
+                    const name = nameInput.value.trim();
+                    const content = contentInput.value.trim();
+
+                    if (name && content) {
+                        // 创建新评论元素
+                        const newComment = document.createElement('div');
+                        newComment.className = 'comment-item';
+                        
+                        // 获取当前时间
+                        const now = new Date();
+                        const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+                        newComment.innerHTML = `
+                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random" alt="${name}" class="comment-avatar">
+                            <div class="comment-body">
+                                <div class="comment-header">
+                                    <span class="comment-author">${name}</span>
+                                    <span class="comment-date">${timeStr}</span>
+                                </div>
+                                <p class="comment-text">${content}</p>
+                            </div>
+                        `;
+
+                        // 添加到列表顶部
+                        commentList.prepend(newComment);
+
+                        // 清空表单
+                        nameInput.value = '';
+                        contentInput.value = '';
+                        
+                        alert('评论发表成功！');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
