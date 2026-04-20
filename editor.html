@@ -10,16 +10,30 @@
 
     <!-- 顶部导航 -->
     <header>
-        <div class="container nav-container">
-            <div class="logo">MyBlog</div>
+    <div class="container nav-container">
+        <div class="logo"><a href="index.html">MyBlog</a></div>
+        <div style="display: flex; align-items: center;">
             <nav class="nav-links">
                 <a href="index.html">首页</a>
                 <a href="#">归档</a>
-                <a href="editor.html" style="color: var(--accent-color);">发布文章</a>
+                <a href="editor.html">发布文章</a>
                 <a href="#">关于我</a>
             </nav>
+            
+            <!-- 新增：深色模式切换按钮 -->
+            <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
+                <!-- 默认显示月亮图标 (表示当前是浅色，点击变深色) -->
+                <svg id="moon-icon" viewBox="0 0 24 24">
+                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+                </svg>
+                <!-- 太阳图标 (默认隐藏) -->
+                <svg id="sun-icon" viewBox="0 0 24 24" style="display: none;">
+                    <path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/>
+                </svg>
+            </button>
         </div>
-    </header>
+    </div>
+</header>
 
     <!-- 编辑器主体 -->
     <main class="container">

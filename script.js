@@ -92,3 +92,57 @@ document.addEventListener('DOMContentLoaded', () => {
     renderArticles();
     initEditor();
 });
+
+// script.js - 追加部分
+
+// 主题切换逻辑
+function initThemeToggle() {
+    const toggleBtn = document.getElementById('theme-toggle');
+    const moonIcon = document.getElementById('moon-icon');
+    const sunIcon = document.getElementById('sun-icon');
+    
+    if (!toggleBtn) return; // 如果页面没有按钮则退出
+
+    // 1. 检查本地存储或系统偏好
+    const savedTheme = localStorage.getItem('theme');
+    const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    
+    if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+        enableDarkMode();
+    } else {
+        enableLightMode();
+    }
+
+    // 2. 绑定点击事件
+    toggleBtn.addEventListener('click', () => {
+        const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+        if (isDark) {
+            enableLightMode();
+        } else {
+            enableDarkMode();
+        }
+    });
+
+    // 辅助函数：启用深色模式
+    function enableDarkMode() {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+        moonIcon.style.display = 'none';
+        sunIcon.style.display = 'block';
+    }
+
+    // 辅助函数：启用浅色模式
+    function enableLightMode() {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('theme', 'light');
+        moonIcon.style.display = 'block';
+        sunIcon.style.display = 'none';
+    }
+}
+
+// 在 DOMContentLoaded 中调用
+document.addEventListener('DOMContentLoaded', () => {
+    renderArticles();
+    initEditor();
+    initThemeToggle(); // 初始化主题切换
+});

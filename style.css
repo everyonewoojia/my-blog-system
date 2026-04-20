@@ -1,13 +1,133 @@
-/* style.css */
+/* style.css - 更新部分 */
+
 :root {
+    /* --- 浅色模式 (默认) --- */
     --bg-color: #f9f9f9;
     --card-bg: #ffffff;
     --text-primary: #333333;
     --text-secondary: #666666;
     --accent-color: #007bff;
     --border-color: #eaeaea;
-    --max-width: 1200px;
-    --nav-height: 60px;
+    --nav-bg: #ffffff;
+    --code-bg: #f4f4f4;
+    --pre-bg: #282c34;
+    --pre-text: #abb2bf;
+    --input-bg: #ffffff;
+}
+
+/* --- 深色模式变量定义 --- */
+[data-theme="dark"] {
+    --bg-color: #1a1a1a;
+    --card-bg: #2d2d2d;
+    --text-primary: #ffffff;
+    --text-secondary: #cccccc;
+    --accent-color: #4da3ff; /* 稍微亮一点的蓝色，适配深色背景 */
+    --border-color: #505050;
+    --nav-bg: #2d2d2d;
+    --code-bg: #3d3d3d;
+    --pre-bg: #1e1e1e;
+    --pre-text: #d4d4d4;
+    --input-bg: #3d3d3d;
+}
+
+/* 全局过渡动画：确保背景色和文字颜色变化平滑 */
+body, 
+.header, 
+.article-card, 
+.sidebar-widget, 
+.post-content, 
+.comments-section, 
+.author-box, 
+input, 
+textarea, 
+button {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+}
+
+/* 导航栏背景适配 */
+header {
+    background: var(--nav-bg);
+    /* 保持原有的阴影，但在深色模式下可能需要调整阴影颜色，这里使用 rgba 自动适应 */
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+}
+
+/* 卡片样式适配 */
+.article-card, .sidebar-widget, .post-content, .comments-section, .author-box {
+    background: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+/* 文本颜色适配 */
+.article-title, .post-title, .widget-title, .comment-author {
+    color: var(--text-primary);
+}
+
+.article-excerpt, .post-meta, .comment-date, .tag, .author-info p {
+    color: var(--text-secondary);
+}
+
+/* 输入框适配 */
+.search-box input, .form-control {
+    background-color: var(--input-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.search-box input::placeholder, .form-control::placeholder {
+    color: var(--text-secondary);
+}
+
+/* 代码块适配 */
+.post-content code {
+    background-color: var(--code-bg);
+    color: #ff79c6; /* 深色模式下代码高亮色调整 */
+}
+
+.post-content pre {
+    background-color: var(--pre-bg);
+    color: var(--pre-text);
+}
+
+/* 标签云适配 */
+.tag {
+    background: var(--border-color); /* 深色模式下标签背景稍亮 */
+    color: var(--text-secondary);
+}
+
+.tag:hover {
+    background: var(--accent-color);
+    color: white;
+}
+
+/* --- 主题切换按钮样式 --- */
+.theme-toggle-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 5px;
+    margin-left: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    transition: transform 0.3s ease;
+}
+
+.theme-toggle-btn:hover {
+    transform: rotate(15deg);
+    color: var(--accent-color);
+}
+
+.theme-toggle-btn svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
 }
 
 * {
@@ -354,7 +474,7 @@ footer {
     margin-bottom: 30px;
     font-size: 1.05rem;
     line-height: 1.8;
-    color: #444;
+    color: #d3d3d3;
 }
 
 /* 正文排版优化 */
@@ -498,7 +618,7 @@ footer {
 
 .comment-text {
     font-size: 0.95rem;
-    color: #555;
+    color: #f5f5f5;
     line-height: 1.5;
 }
 
