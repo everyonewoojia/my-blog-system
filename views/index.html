@@ -91,10 +91,77 @@
     <!-- 底部版权 -->
     <footer>
         <div class="container">
-            <p>&copy; 2023 MyBlog. All rights reserved.</p>
+            <p>&copy; 2026 MyBlog. All rights reserved.</p>
         </div>
     </footer>
 
-    <script src="/js/script.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            initTheme();       // 初始化深色模式
+            loadArticles();    // 加载文章列表
+        });
+
+        // --- 1. 深色模式核心逻辑 ---
+        function initTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const moonIcon = document.getElementById('moon-icon');
+            const sunIcon = document.getElementById('sun-icon');
+            
+            // 获取保存的主题设置
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // 应用初始主题
+            applyTheme(savedTheme);
+
+            // 监听点击事件
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            function applyTheme(theme) {
+                document.body.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    moonIcon.style.display = 'none';
+                    sunIcon.style.display = 'block';
+                } else {
+                    moonIcon.style.display = 'block';
+                    sunIcon.style.display = 'none';
+                }
+            }
+        }
+
+        // --- 2. 文章加载逻辑 ---
+        async function loadArticles() {
+            const listContainer = document.getElementById('article-list');
+            try {
+                const url = keyword ? `/api/articles?keyword=${encodeURIComponent(keyword)}` : '/api/articles';
+                const response = await fetch(url);
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    listContainer.innerHTML = result.data.map(article => `
+                        <article class="article-card">
+                            <h3 class="article-title">
+                                <a href="/post?id=${article.id}">${article.title}</a>
+                            </h3>
+                            <div class="article-meta">
+                                <span>📅 ${new Date(article.created_at).toLocaleDateString()}</span>
+                                <span>🏷️ ${article.category || '默认'}</span>
+                            </div>
+                            <p class="article-excerpt">${article.content.substring(0, 100)}...</p>
+                            <a href="/post?id=${article.id}" class="read-more">阅读更多 →</a>
+                        </article>
+                    `).join('');
+                } else {
+                    listContainer.innerHTML = '<p>暂无文章发布</p>';
+                }
+            } catch (error) {
+                listContainer.innerHTML = '<p style="color:red;">文章加载失败，请稍后重试</p>';
+            }
+        }
+    </script>
 </body>
 </html>

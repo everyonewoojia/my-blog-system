@@ -3,104 +3,246 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>发布新文章 - 我的个人博客</title>
+    <title>发布文章 - 我的个人博客</title>
     <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 编辑器页面特定样式补充 */
+        .editor-header {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .input-title {
+            flex: 1;
+            padding: 10px;
+            font-size: 1.2rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            outline: none;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .select-category {
+            padding: 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--card-bg);
+            color: var(--text-primary);
+        }
+        .editor-actions {
+            margin-top: 20px;
+            text-align: right;
+        }
+    </style>
 </head>
 <body>
 
+    <!-- 顶部导航 -->
     <header>
         <div class="container nav-container">
-            <div class="logo"><a href="index.html">MyBlog</a></div>
-            <div style="display: flex; align-items: center;">
+            <div class="logo"><a href="/">MyBlog</a></div>
+            <div style="display: flex; align-items: center; gap: 20px;">
                 <nav class="nav-links">
-                   <a href="/">首页</a>
-                   <a href="#">归档</a>
-                   <a href="/">发布文章</a>
-                   <a href="#">关于我</a>
+                    <a href="/">首页</a>
+                    <a href="/admin/articles">文章管理</a>
+                    <a href="/editor" class="active">发布文章</a>
                 </nav>
-            
                 <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
-                    <svg id="moon-icon" viewBox="0 0 24 24">
-                       <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-                    </svg>
-                    <svg id="sun-icon" viewBox="0 0 24 24" style="display: none;">
-                       <path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/>
-                    </svg>
+                    <svg id="moon-icon" viewBox="0 0 24 24"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+                    <svg id="sun-icon" viewBox="0 0 24 24" style="display: none;"><path d="M12 7a5 5 0 1 1 -4.992 5L7 12a5 5 0 0 1 5 -5zM2 13h2a1 1 0 0 0 0 -2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0 -2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0 -2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0 -2 0zM5.99 4.58a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414L5.99 4.58zm12.02 12.02a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414l-1.414 -1.414zm-12.02 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414a1 1 0 0 0 -1.414 -1.414zm14.14 -12.726a1 1 0 0 0 -1.414 -1.414l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414z" /></svg>
                 </button>
             </div>
         </div>
     </header>
 
-    <main class="container">
-        <div style="margin: 20px 0;">
-            <input type="text" id="post-title-input" class="form-control" placeholder="请输入文章标题..." style="font-size: 1.5rem; padding: 15px;">
+    <!-- 编辑器主体 -->
+    <main class="container" style="margin-top: 30px;">
+        
+        <!-- 新增：标题和分类输入区 -->
+        <div class="editor-header">
+            <input type="text" id="post-title" class="input-title" placeholder="请输入文章标题...">
+            <select id="post-category" class="select-category">
+                <option value="前端技术">前端技术</option>
+                <option value="后端开发">后端开发</option>
+                <option value="生活随笔">生活随笔</option>
+                <option value="默认分类">默认分类</option>
+            </select>
         </div>
 
         <div class="editor-container">
+            <!-- 左侧编辑区 -->
             <div class="editor-panel">
                 <div class="panel-header">Markdown 编辑</div>
                 <textarea id="markdown-input" placeholder="在此输入 Markdown 内容..."></textarea>
             </div>
 
+            <!-- 右侧预览区 -->
             <div class="preview-panel">
                 <div class="panel-header">实时预览</div>
                 <div id="preview-output"></div>
             </div>
         </div>
         
-        <div style="margin-top: 20px; text-align: right;">
-            <button id="publish-btn" class="read-more-btn">发布文章</button>
+        <div class="editor-actions">
+            <button id="save-btn" class="read-more-btn">发布文章</button>
+            <a href="/admin/articles" style="margin-left: 10px; color: var(--text-secondary);">取消</a>
         </div>
     </main>
 
+    <!-- 底部版权 -->
     <footer>
         <div class="container">
-            <p>&copy; 2026 MyBlog. All rights reserved.</p>
+            <p>&copy; 2023 MyBlog. All rights reserved.</p>
         </div>
     </footer>
 
     <script>
-        // 1. 处理文章发布逻辑
-        document.getElementById('publish-btn').addEventListener('click', async () => {
-            const content = document.getElementById('markdown-input').value;
-            const title = document.getElementById('post-title-input').value;
+        // --- 1. 原有的 Markdown 解析逻辑 ---
+        function parseMarkdown(markdown) {
+            let html = markdown
+                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
+                .replace(/\*(.*)\*/gim, '<i>$1</i>')
+                .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
+                .replace(/`(.*?)`/gim, '<code>$1</code>')
+                .replace(/\n/gim, '<br>');
+            return html;
+        }
+
+        const input = document.getElementById('markdown-input');
+        const output = document.getElementById('preview-output');
+        
+        if (input && output) {
+            input.addEventListener('input', () => {
+                output.innerHTML = parseMarkdown(input.value);
+            });
+        }
+
+        // --- 2. 新增：新建/编辑逻辑 ---
+        
+        let currentArticleId = null; // 如果是编辑模式，存储 ID
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const path = window.location.pathname;
+            const saveBtn = document.getElementById('save-btn');
+            const titleInput = document.getElementById('post-title');
+            const categorySelect = document.getElementById('post-category');
+
+            // 判断是否是编辑模式: /admin/articles/123/edit
+            const editMatch = path.match(/\/admin\/articles\/(\d+)\/edit/);
             
-            if (!title || !content) {
-                alert('标题和内容不能为空！');
-                return;
-            }
-            
-            try {
-                const res = await fetch('/api/articles', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        title: title, 
-                        content: content, 
-                        excerpt: content.substring(0, 50),
-                        category: '默认分类'
-                    })
-                });
+            initTheme();
+
+            if (editMatch) {
+                // === 编辑模式 ===
+                currentArticleId = editMatch[1];
+                saveBtn.textContent = '保存修改';
+                document.title = '编辑文章 - 我的个人博客';
                 
-                const result = await res.json();
-                if (result.success) {
-                    alert('发布成功！');
-                    window.location.href = '/'; // 成功后跳转到首页
-                } else {
-                    alert('发布失败：' + (result.message || '服务器错误'));
-                }
-            } catch (e) {
-                console.error('网络请求失败:', e);
-                alert('网络请求失败，请检查后端服务是否启动');
+                // 加载文章数据
+                await loadArticleForEdit(currentArticleId);
+            } else {
+                // === 新建模式 ===
+                saveBtn.textContent = '发布文章';
+                // 设置默认预览文本
+                input.value = "# 欢迎使用 Markdown 编辑器\n\n在这里输入内容...";
+                output.innerHTML = parseMarkdown(input.value);
             }
+
+            // 绑定保存按钮事件
+            saveBtn.addEventListener('click', handleSave);
         });
 
-        // 2. 简单的实时预览逻辑 (可选，增强体验)
-        document.getElementById('markdown-input').addEventListener('input', (e) => {
-            document.getElementById('preview-output').innerText = e.target.value;
-        });
+        function initTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const moonIcon = document.getElementById('moon-icon');
+            const sunIcon = document.getElementById('sun-icon');
+            
+            // 获取保存的主题设置
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // 应用初始主题
+            applyTheme(savedTheme);
+
+            // 监听点击事件
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+            function applyTheme(theme) {
+                document.body.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    moonIcon.style.display = 'none';
+                    sunIcon.style.display = 'block';
+                } else {
+                    moonIcon.style.display = 'block';
+                    sunIcon.style.display = 'none';
+                }
+            }
+        }
+
+        async function loadArticleForEdit(id) {
+            try {
+                const res = await fetch(`/articles/${id}`);
+                const result = await res.json();
+                
+                if (result.success) {
+                    const article = result.data;
+                    document.getElementById('post-title').value = article.title;
+                    document.getElementById('markdown-input').value = article.content;
+                    document.getElementById('post-category').value = article.category;
+                    
+                    // 触发一次预览更新
+                    document.getElementById('preview-output').innerHTML = parseMarkdown(article.content);
+                } else {
+                    alert('加载文章失败');
+                }
+            } catch (error) {
+                console.error(error);
+                alert('网络错误，无法加载文章');
+            }
+        }
+
+        async function handleSave() {
+            const title = document.getElementById('post-title').value.trim();
+            const content = document.getElementById('markdown-input').value.trim();
+            const category = document.getElementById('post-category').value;
+
+            if (!title || !content) {
+                alert('标题和内容不能为空');
+                return;
+            }
+
+            const isEdit = !!currentArticleId;
+            const url = currentArticleId ? `/api/articles/${currentArticleId}` : '/api/articles';
+            const method = isEdit ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, content, category })
+                });
+
+                const result = await res.json();
+
+                if (result.success) {
+                    alert(isEdit ? '更新成功！' : '发布成功！');
+                    window.location.href = '/admin/articles'; // 跳回管理页
+                } else {
+                    alert('操作失败: ' + result.message);
+                }
+            } catch (error) {
+                console.error(error);
+                alert('网络请求失败');
+            }
+        }
     </script>
-    
-    <script src="/js/script.js"></script>
 </body>
 </html>

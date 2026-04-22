@@ -22,14 +22,8 @@
             
             <!-- 新增：深色模式切换按钮 -->
             <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
-                <!-- 默认显示月亮图标 (表示当前是浅色，点击变深色) -->
-                <svg id="moon-icon" viewBox="0 0 24 24">
-                    <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-                </svg>
-                <!-- 太阳图标 (默认隐藏) -->
-                <svg id="sun-icon" viewBox="0 0 24 24" style="display: none;">
-                    <path d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/>
-                </svg>
+                <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+                <svg id="sun-icon" viewBox="0 0 24 24" style="display: none; width:20px; height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 1 -4.992 5L7 12a5 5 0 0 1 5 -5zM2 13h2a1 1 0 0 0 0 -2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0 -2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0 -2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0 -2 0zM5.99 4.58a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414L5.99 4.58zm12.02 12.02a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414l-1.414 -1.414zm-12.02 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414a1 1 0 0 0 -1.414 -1.414zm14.14 -12.726a1 1 0 0 0 -1.414 -1.414l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414z" /></svg>
             </button>
         </div>
     </div>
@@ -150,6 +144,7 @@ function Counter() {
     <script>
         // 页面特定的 JS：处理评论提交
         document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
             const form = document.getElementById('comment-form');
             const commentList = document.getElementById('comment-list');
 
@@ -195,6 +190,39 @@ function Counter() {
                 });
             }
         });
+
+        function initTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const moonIcon = document.getElementById('moon-icon');
+            const sunIcon = document.getElementById('sun-icon');
+            
+            // 检查本地存储
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            
+            // 应用主题的函数
+            const applyTheme = (theme) => {
+                document.body.setAttribute('data-theme', theme);
+                if (theme === 'dark') {
+                    moonIcon.style.display = 'none';
+                    sunIcon.style.display = 'block';
+                } else {
+                    moonIcon.style.display = 'block';
+                    sunIcon.style.display = 'none';
+                }
+            };
+
+            // 初始应用
+            applyTheme(savedTheme);
+
+            // 绑定点击事件
+            themeToggle.addEventListener('click', () => {
+                const currentTheme = document.body.getAttribute('data-theme');
+                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+        }
     </script>
 </body>
 </html>

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文章管理 - 我的个人博客</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 针对管理界面的专属样式优化 */
+        .admin-main {
+            padding-top: 40px;
+            max-width: 1200px; /* 适配大屏幕的最佳宽度 */
+            margin: 0 auto;
+        }
+
+        /* 1. 调整标题行容器：确保它是相对定位基准 */
+        .admin-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* 关键：让容器内的内容（按钮）默认靠右 */
+            margin-bottom: 30px;
+            position: relative;
+            min-height: 60px; /* 稍微增加高度，防止按钮太挤 */
+        }
+
+        /* 2. 标题绝对居中：不受两侧内容影响 */
+        .admin-header h2 {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%); /* 完美的水平垂直居中 */
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            white-space: nowrap;
+        }
+
+        /* 3. 修改按钮样式：蓝色底、白字、大圆角 */
+        .admin-header .header-actions button.btn-edit {
+            background-color: #007bff !important; /* 强制蓝色 */
+            color: #ffffff !important;            /* 强制白字 */
+            border: none !important;
+            padding: 10px 24px !important;        /* 增加内边距 */
+            border-radius: 30px !important;       /* 强制超大圆角 */
+            font-weight: 600 !important;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3); /* 增加蓝色阴影 */
+            text-decoration: none;
+        }
+
+        /* 悬停效果 */
+        .admin-header .header-actions button.btn-edit:hover {
+            background-color: #0056b3 !important; /* 深蓝色 */
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+        }
+
+        /* 确保文字在深色模式下也不会变黑 */
+        [data-theme="dark"] .admin-header .header-actions button.btn-edit {
+            background-color: #007bff !important;
+            color: #ffffff !important;
+        }
+
+        /* 表格样式优化 */
+        .admin-table-container {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+            width: 100%;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed; /* 开启固定布局以精确控制列宽 */
+        }
+
+        .admin-table th, .admin-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .admin-table th {
+            background-color: var(--nav-bg);
+            color: var(--text-secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+
+        /* 控制列宽分布 */
+        .col-title { width: 40%; }    /* 标题占比最大 */
+        .col-cate  { width: 15%; }    /* 其他四项均匀分布 */
+        .col-status { width: 15%; }
+        .col-date  { width: 15%; }
+        .col-action { width: 15%; }
+
+        .status-badge {
+            background: rgba(40, 167, 69, 0.1);
+            color: #28a745;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        /* 按钮悬停效果 */
+        .action-btn {
+            padding: 6px 12px;
+            font-size: 0.85rem;
+            transition: transform 0.2s;
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container nav-container">
+            <div class="logo"><a href="/">MyBlog</a></div>
+            
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <nav class="nav-links">
+                    <a href="/">首页</a>
+                    <a href="/admin/articles" style="color: var(--accent-color); font-weight: bold;">文章管理</a>
+                    <a href="/editor">发布文章</a>
+                </nav>
+                
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
+                    <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+                    <svg id="sun-icon" viewBox="0 0 24 24" style="display: none; width:20px; height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 1 -4.992 5L7 12a5 5 0 0 1 5 -5zM2 13h2a1 1 0 0 0 0 -2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0 -2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0 -2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0 -2 0zM5.99 4.58a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414L5.99 4.58zm12.02 12.02a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414l-1.414 -1.414zm-12.02 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414a1 1 0 0 0 -1.414 -1.414zm14.14 -12.726a1 1 0 0 0 -1.414 -1.414l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414z" /></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container admin-main">
+        <div class="admin-header">
+            <h2>文章管理</h2>
+            <div class="header-actions">
+                <button class="action-btn btn-edit" onclick="window.location.href='/editor'">+ 发布新文章</button>
+            </div>
+        </div>
+
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th class="col-title">标题</th>
+                        <th class="col-cate">分类</th>
+                        <th class="col-status">状态</th>
+                        <th class="col-date">发布时间</th>
+                        <th class="col-action">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-article-list">
+                    </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        // --- 1. 数据加载逻辑 ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAdminArticles();
+            initTheme(); // 初始化主题
+        });
+
+        async function loadAdminArticles() {
+            const listContainer = document.getElementById('admin-article-list');
+            try {
+                // 指向 API 路由
+                const response = await fetch('/api/articles');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    listContainer.innerHTML = result.data.map(article => `
+                        <tr>
+                            <td>${article.title}</td>
+                            <td>${article.category || '默认'}</td>
+                            <td><span class="status-badge">已发布</span></td>
+                            <td>${new Date(article.created_at || Date.now()).toLocaleDateString()}</td>
+                            <td>
+                                <button class="action-btn btn-edit" onclick="window.location.href='/editor?id=${article.id}'">编辑</button>
+                                <button class="action-btn btn-delete" onclick="deleteArticle(${article.id})">删除</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                } else {
+                    listContainer.innerHTML = '<tr><td colspan="5" style="text-align: center;">暂无文章</td></tr>';
+                }
+            } catch (error) {
+                listContainer.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">加载失败</td></tr>';
+            }
+        }
+
+        async function deleteArticle(id) {
+            if (!confirm('确定删除吗？')) return;
+            try {
+                const response = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+                const result = await response.json();
+                if (result.success) {
+                    loadAdminArticles();
+                }
+            } catch (error) {
+                alert('删除失败');
+            }
+        }
+
+        // --- 2. 主题切换逻辑 (保持与主站一致) ---
+        function initTheme() {
+            const themeToggle = document.getElementById('theme-toggle');
+            const moonIcon = document.getElementById('moon-icon');
+            const sunIcon = document.getElementById('sun-icon');
+            
+            themeToggle.addEventListener('click', () => {
+                const isDark = document.body.getAttribute('data-theme') === 'dark';
+                const newTheme = isDark ? 'light' : 'dark';
+                document.body.setAttribute('data-theme', newTheme);
+                moonIcon.style.display = isDark ? 'block' : 'none';
+                sunIcon.style.display = isDark ? 'none' : 'block';
+                localStorage.setItem('theme', newTheme);
+            });
+
+            // 回显保存的主题
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

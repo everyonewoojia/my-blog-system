@@ -14,17 +14,18 @@ db.pragma('foreign_keys = ON');
 // 初始化表结构
 function initDatabase() {
     // 创建文章表
+    // 统一字段名：为了匹配你的 Controller，这里使用 view_count 而不是 views
     db.exec(`
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
             content TEXT NOT NULL,
             excerpt TEXT,
-            category TEXT DEFAULT '未分类',
-            tags TEXT, -- 存储为逗号分隔字符串，简单起见
+            category TEXT DEFAULT '默认分类',
+            tags TEXT, 
+            view_count INTEGER DEFAULT 0,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            views INTEGER DEFAULT 0
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
 
@@ -43,4 +44,5 @@ function initDatabase() {
     console.log('Database initialized successfully.');
 }
 
+// 导出 db 实例供 Article.js 使用，导出 initDatabase 供 app.js 使用
 module.exports = { db, initDatabase };

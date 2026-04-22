@@ -422,19 +422,28 @@ footer {
 
 /* 响应式设计优化 */
 @media (max-width: 768px) {
-    .main-layout {
-        grid-template-columns: 1fr; /* 整体变为单列 */
-        gap: 20px;
+    /* 1. 确保容器开启 Flex 布局并垂直排列 */
+    .admin-main {
+        flex-direction: column;
     }
 
-    #article-list {
-        /* 移动端：文章列表也变为单列 */
-        grid-template-columns: 1fr;
-        gap: 20px;
+    /* 2. 针对主页面容器进行排序优化 */
+    main.container {
+        display: flex;
+        flex-direction: column; /* 垂直堆叠 */
     }
-    
-    .sidebar {
-        order: 2; /* 确保侧边栏在文章下方 */
+
+    /* 3. 让侧边栏（包含搜索框）排在第一位 */
+    aside.sidebar {
+        order: -1;      /* 关键：负值会让它排在最前面 */
+        width: 100%;    /* 确保宽度占满 */
+        margin-bottom: 20px; /* 与下方文章列表保持间距 */
+    }
+
+    /* 4. 让文章列表排在后面 */
+    section.main-content {
+        order: 1;
+        width: 100%;
     }
 }
 
@@ -473,14 +482,14 @@ footer {
     border: 1px solid var(--border-color);
     margin-bottom: 30px;
     font-size: 1.05rem;
-    line-height: 1.8;
-    color: #d3d3d3;
+    line-height: 1.5;
+    color: #0c0c0c;
 }
 
 /* 正文排版优化 */
 .post-content h1, .post-content h2, .post-content h3 {
-    margin-top: 1.5em;
-    margin-bottom: 0.8em;
+    margin-top: 0em;
+    margin-bottom: 0em;
     color: var(--text-primary);
 }
 
@@ -618,7 +627,7 @@ footer {
 
 .comment-text {
     font-size: 0.95rem;
-    color: #f5f5f5;
+    color: #1a1a1a;
     line-height: 1.5;
 }
 

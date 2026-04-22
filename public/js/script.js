@@ -156,7 +156,7 @@ function initEditor() {
 
 // 页面加载完成后执行
 document.addEventListener('DOMContentLoaded', () => {
-    renderArticles();
+    loadArticles()
     initEditor();
 });
 
@@ -209,7 +209,11 @@ function initThemeToggle() {
 
 // 在 DOMContentLoaded 中调用
 document.addEventListener('DOMContentLoaded', () => {
-    renderArticles();
     initEditor();
     initThemeToggle(); // 初始化主题切换
+    // 只有在包含文章列表容器的页面（首页）才执行
+    if (document.getElementById('article-list')) {
+        console.log('检测到首页，开始加载文章...');
+        loadArticles(); 
+    }
 });
