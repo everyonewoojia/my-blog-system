@@ -30,33 +30,19 @@ const articleController = {
      */
     getArticles: async (req, res) => {
         try {
-            const page = parseInt(req.query.page) || 1;
-            const limit = parseInt(req.query.limit) || 10;
-            const category = req.query.category;
-            // --- 新增：获取搜索关键词 ---
-            const keyword = req.query.keyword; 
+            const { page = 1, limit = 10, category, keyword } = req.query; // 确保提取了 keyword
 
-            // 将 keyword 传入模型层的 findAll 方法
+            // 调用 Model 层，将 keyword 传入
             const { articles, total } = await Article.findAll({ 
-                page, 
-                limit, 
+                page: parseInt(page), 
+                limit: parseInt(limit), 
                 category,
-                keyword  // --- 传入参数 ---
+                keyword 
             });
 
-            res.json({
-                success: true,
-                data: articles,
-                pagination: {
-                    total,
-                    page,
-                    limit,
-                    totalPages: Math.ceil(total / limit)
-                }
-            });
+            res.json({ success: true, data: articles, total });
         } catch (error) {
-            console.error('获取文章列表失败:', error);
-            res.status(500).json({ success: false, message: '服务器内部错误' });
+            res.status(500).json({ success: false, message: error.message });
         }
     },
 

@@ -12,32 +12,38 @@ class ArticleModel {
         let countQuery = 'SELECT COUNT(*) as total FROM articles WHERE 1=1';
         let params = [];
 
-        // 分类筛选
         if (category) {
             query += ' AND category = ?';
             countQuery += ' AND category = ?';
             params.push(category);
         }
 
-        // --- 新增：关键词模糊搜索逻辑 ---
         if (keyword) {
             const searchPattern = `%${keyword}%`;
             query += ' AND (title LIKE ? OR content LIKE ?)';
             countQuery += ' AND (title LIKE ? OR content LIKE ?)';
-            // 对应 title 和 content 两个占位符
             params.push(searchPattern, searchPattern);
         }
 
         query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
         
-        // 执行查询
-        const [articles] = await db.execute(query, [...params, String(limit), String(offset)]);
-        const [countResult] = await db.execute(countQuery, params);
+        try {
+            // --- 核心修复：针对 better-sqlite3 的写法 ---
+            const stmt = db.prepare(query);
+            // 合并所有参数：原本的 params + limit + offset
+            const articles = stmt.all(...params, limit, offset);
 
-        return {
-            articles,
-            total: countResult[0].total
-        };
+            const countStmt = db.prepare(countQuery);
+            const countResult = countStmt.get(...params);
+
+            return {
+                articles,
+                total: countResult ? countResult.total : 0
+            };
+        } catch (error) {
+            console.error('Database Error (findAll):', error);
+            throw error;
+        }
     }
 
     /**

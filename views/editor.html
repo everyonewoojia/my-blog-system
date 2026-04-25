@@ -33,6 +33,7 @@
         .editor-actions {
             margin-top: 20px;
             text-align: right;
+            margin-bottom: 80px;
         }
     </style>
 </head>
@@ -224,7 +225,7 @@
             const method = isEdit ? 'PUT' : 'POST';
 
             try {
-                const res = await fetch(url, {
+                const res = await fetch(/api/articles, {
                     method: method,
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ title, content, category })
