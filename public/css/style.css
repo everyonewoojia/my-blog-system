@@ -192,6 +192,11 @@ header {
     padding: 5px 0;
 }
 
+.nav-links a.active {
+    color: var(--accent-color) !important;
+    font-weight: bold !important;
+}
+
 /* 导航下划线动画 */
 .nav-links a::after {
     content: '';
