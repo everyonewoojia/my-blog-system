@@ -155,6 +155,19 @@ const articleController = {
             console.error('删除文章失败:', error);
             res.status(500).json({ success: false, message: '服务器内部错误' });
         }
+    },
+
+    /**
+     * 获取分类统计信息
+     * GET /api/articles/stats
+     */
+    getStats: async (req, res) => {
+        try {
+            const stats = await Article.getCategoryStats();
+            res.json({ success: true, data: stats });
+        } catch (error) {
+            res.status(500).json({ success: false, message: error.message });
+        }
     }
 };
 

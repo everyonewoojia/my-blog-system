@@ -134,6 +134,24 @@ class ArticleModel {
             throw error;
         }
     }
+
+    /**
+     * 获取各分类的文章数量统计
+     */
+    static async getCategoryStats() {
+        try {
+            // 统计每个分类下的文章数量
+            const stmt = db.prepare(`
+                SELECT category, COUNT(*) as count 
+                FROM articles 
+                GROUP BY category
+            `);
+            return stmt.all();
+        } catch (error) {
+            console.error('Database Error (getCategoryStats):', error);
+            throw error;
+        }
+    }
 }
 
 module.exports = ArticleModel;

@@ -55,22 +55,13 @@
             <!-- 分类列表 -->
             <div class="sidebar-widget">
                 <h3 class="widget-title">分类</h3>
-                <ul class="category-list">
-                    <li><a href="#">前端技术 (12)</a></li>
-                    <li><a href="#">后端开发 (5)</a></li>
-                    <li><a href="#">生活随笔 (8)</a></li>
-                    <li><a href="#">读书笔记 (3)</a></li>
-                </ul>
+                <ul class="category-list"></ul>
             </div>
 
             <!-- 近期文章 -->
             <div class="sidebar-widget">
                 <h3 class="widget-title">近期文章</h3>
-                <ul class="recent-posts">
-                    <li><a href="#">探索现代前端开发趋势</a></li>
-                    <li><a href="#">CSS Grid 布局完全指南</a></li>
-                    <li><a href="#">如何构建高性能的个人博客</a></li>
-                </ul>
+                <ul class="recent-posts"></ul>
             </div>
         </aside>
     </main>
@@ -84,8 +75,10 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            initTheme();       // 初始化深色模式
-            loadArticles();    // 加载文章列表
+            initTheme();       
+            loadArticles();    
+            loadCategories(); 
+            loadRecentPosts();
         });
 
         document.getElementById('search-input').addEventListener('keypress', function (e) {
@@ -127,34 +120,21 @@
         }
 
         // --- 2. 文章加载逻辑 ---
-        async function loadArticles(keyword = '') {
+        async function loadArticles(keyword = '', category = '') {
             const listContainer = document.getElementById('article-list');
-            
-            // 每次加载前可以显示一个加载中状态（可选）
-            // listContainer.innerHTML = '<p style="text-align:center;">加载中...</p>';
-
             try {
-                // 1. 构建 URL
                 let fetchUrl = '/api/articles';
                 const params = new URLSearchParams();
                 
-                // 只有当 keyword 不为空时才添加参数
-                if (keyword.trim()) {
-                    params.append('keyword', keyword.trim());
-                }
+                if (keyword.trim()) params.append('keyword', keyword.trim());
+                if (category.trim()) params.append('category', category.trim());
                 
-                // 如果有参数，拼接到 URL 后面
-                if (params.toString()) {
-                    fetchUrl += `?${params.toString()}`;
-                }
+                if (params.toString()) fetchUrl += `?${params.toString()}`;
 
-                // 2. 发起请求（注意：这里必须使用我们刚才构建的 fetchUrl 变量）
                 const response = await fetch(fetchUrl); 
                 const result = await response.json();
 
-                // 3. 处理返回结果
                 if (result.success && result.data && result.data.length > 0) {
-                    // 情况 A：找到文章（不论是全部文章还是搜索后的文章）
                     listContainer.innerHTML = result.data.map(article => `
                         <article class="article-card">
                             <h3 class="article-title">
@@ -169,15 +149,64 @@
                         </article>
                     `).join('');
                 } else {
-                    // 情况 B：列表为空（包括搜索不到结果的情况）
-                    const emptyMsg = keyword 
-                        ? `未找到包含 "${keyword}" 的相关文章 🔍` 
-                        : '暂无文章发布 📝';
+                    // 状态 2 的逻辑体现：针对分类或搜索显示不同空状态
+                    let emptyMsg = '暂无文章发布 📝';
+                    if (keyword) emptyMsg = `未找到包含 "${keyword}" 的相关文章 🔍`;
+                    else if (category) emptyMsg = `该分类 "${category}" 下暂无文章 📂`;
+                    
                     listContainer.innerHTML = `<p style="text-align:center; padding:40px; color:var(--text-secondary);">${emptyMsg}</p>`;
                 }
             } catch (error) {
                 console.error('加载失败:', error);
-                listContainer.innerHTML = '<p style="color:red; text-align:center;">文章加载失败，请检查后端服务是否启动</p>';
+            }
+        }
+
+        // --- 3. 加载并渲染分类侧边栏 ---
+        async function loadCategories() {
+            const categoryContainer = document.querySelector('.category-list');
+            try {
+                const response = await fetch('/api/articles/stats');
+                const result = await response.json();
+                
+                if (result.success) {
+                    // 渲染分类列表，点击时调用 loadArticles 并传入分类名
+                    categoryContainer.innerHTML = result.data.map(item => `
+                        <li>
+                            <a href="javascript:void(0)" onclick="loadArticles('', '${item.category}')">
+                                ${item.category} (${item.count})
+                            </a>
+                        </li>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载分类失败:', error);
+            }
+        }
+
+        // --- 4. 近期文章加载逻辑 ---
+        async function loadRecentPosts() {
+            const recentContainer = document.querySelector('.recent-posts');
+            if (!recentContainer) return;
+
+            try {
+                // 请求接口，限制只取 3 条最新的文章
+                const response = await fetch('/api/articles?limit=3&page=1');
+                const result = await response.json();
+
+                if (result.success && result.data && result.data.length > 0) {
+                    recentContainer.innerHTML = result.data.map(article => `
+                        <li>
+                            <a href="/post?id=${article.id}" title="${article.title}">
+                                ${article.title}
+                            </a>
+                        </li>
+                    `).join('');
+                } else {
+                    recentContainer.innerHTML = '<li>暂无最新文章</li>';
+                }
+            } catch (error) {
+                console.error('加载近期文章失败:', error);
+                recentContainer.innerHTML = '<li>加载失败</li>';
             }
         }
 
