@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>关于我 - 我的个人博客</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        /* 关于我页面专属布局 */
+        .about-container {
+            max-width: 600px;
+            margin: 100px auto 40px;
+            padding: 0 20px;
+        }
+
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            padding: 70px 40px 40px;
+            position: relative;
+            text-align: center;
+            transition: background 0.3s ease;
+        }
+
+        /* 圆形头像 */
+        .avatar-wrapper {
+            position: absolute;
+            top: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 110px;
+            height: 110px;
+            cursor: pointer;
+        }
+
+        .avatar-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid var(--card-bg);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        /* ID 样式 */
+        .display-id {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            color: var(--text-primary);
+        }
+
+        /* 编辑模式下的 ID 输入框 */
+        .edit-id-input {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            width: 80%;
+            margin-bottom: 15px;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+        }
+
+        /* 简介文本 */
+        .bio-text {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+            line-height: 1.8;
+            margin-bottom: 35px;
+            white-space: pre-wrap;
+        }
+
+        /* 蓝色大圆角矩形按钮 */
+        .btn-update {
+            background-color: #007AFF;
+            color: white;
+            border: none;
+            padding: 12px 40px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-update:hover {
+            background-color: #0063CC;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(0, 122, 255, 0.4);
+        }
+
+        /* 编辑状态下的文本域 */
+        .edit-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: inherit;
+            margin-bottom: 20px;
+            resize: vertical;
+        }
+
+        /* 模态框（放大头像） */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 70%;
+            border-radius: 15px;
+            margin-bottom: 25px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <div class="logo"><a href="/">MyBlog</a></div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <nav class="nav-links">
+                    <a href="/">首页</a>
+                    <a href="/admin">文章管理</a>
+                    <a href="/editor">发布文章</a>
+                    <a href="/about" class="active">关于我</a>
+                </nav>
+                <button id="theme-toggle" class="theme-toggle-btn">
+                    <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>
+                    <svg id="sun-icon" viewBox="0 0 24 24" style="display:none;width:20px;height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 1 0 0-2H2a1 1 0 1 0 0 2zm18 0h2a1 1 0 1 0 0-2h-2a1 1 0 1 0 0 2zM11 2v2a1 1 0 1 0 2 0V2a1 1 0 1 0-2 0zm0 18v2a1 1 0 1 0 2 0v-2a1 1 0 1 0-2 0zM5.99 4.58a1 1 0 1 0-1.41 1.41l1.06 1.06a1 1 0 1 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 1 0-1.41 1.41l1.06 1.06a1 1 0 1 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 1 0-1.41-1.41l-1.06 1.06a1 1 0 1 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 1 0-1.41-1.41l-1.06 1.06a1 1 0 1 0 1.41 1.41l1.06-1.06z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="about-container">
+        <div class="profile-card">
+            <div class="avatar-wrapper" onclick="openAvatarModal()">
+                <img id="display-avatar" class="avatar-circle" src="/img/default-avatar.png">
+            </div>
+
+            <div id="view-mode">
+                <h2 id="display-nickname" class="display-id">正在加载...</h2>
+                <p id="display-bio" class="bio-text">正在加载...</p>
+                <button class="btn-update" onclick="toggleEdit(true)">更改</button>
+            </div>
+
+            <div id="edit-mode" style="display:none">
+                <input type="text" id="input-nickname" class="edit-id-input" placeholder="输入新ID">
+                <textarea id="input-bio" class="edit-textarea" rows="6" placeholder="输入新简介..."></textarea>
+                <div class="btn-group">
+                    <button class="btn-update" onclick="saveAll()">保存</button>
+                    <button class="btn-update" style="background:#6c757d; box-shadow:none;" onclick="toggleEdit(false)">取消</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="avatar-modal" class="modal" onclick="closeModal(event)">
+        <img id="modal-img" src="">
+        <div class="btn-group">
+            <button class="btn-update" onclick="document.getElementById('upload-input').click()">更换头像</button>
+            <button class="btn-update" style="background:#6c757d; box-shadow:none;" onclick="closeModal()">关闭</button>
+        </div>
+        <input type="file" id="upload-input" hidden accept="image/*" onchange="uploadAvatar(event)">
+    </div>
+
+    <script>
+        let userData = {};
+
+        async function loadProfile() {
+            try {
+                const res = await fetch('/api/profile');
+                const result = await res.json();
+                if (result.success) {
+                    userData = result.data;
+                    updateUI();
+                }
+            } catch (err) { console.error('加载失败', err); }
+        }
+
+        function updateUI() {
+            // 展示内容
+            document.getElementById('display-nickname').textContent = userData.nickname;
+            document.getElementById('display-bio').textContent = userData.bio || '暂无简介';
+            document.getElementById('display-avatar').src = userData.avatar_url;
+            // 编辑内容回填
+            document.getElementById('input-nickname').value = userData.nickname;
+            document.getElementById('input-bio').value = userData.bio;
+            // 模态框图片
+            document.getElementById('modal-img').src = userData.avatar_url;
+        }
+
+        function toggleEdit(isEdit) {
+            document.getElementById('view-mode').style.display = isEdit ? 'none' : 'block';
+            document.getElementById('edit-mode').style.display = isEdit ? 'block' : 'none';
+        }
+
+        // 同时保存 ID 和 简介
+        async function saveAll() {
+            const newNickname = document.getElementById('input-nickname').value.trim();
+            const newBio = document.getElementById('input-bio').value.trim();
+
+            if (!newNickname) {
+                alert('ID 不能为空');
+                return;
+            }
+
+            const updatedData = {
+                ...userData,
+                nickname: newNickname,
+                bio: newBio
+            };
+
+            await submitUpdate(updatedData);
+            toggleEdit(false);
+        }
+
+        // 更换头像
+        function uploadAvatar(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (event) => {
+                const newAvatar = event.target.result;
+                await submitUpdate({ ...userData, avatar_url: newAvatar });
+                closeModal();
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function submitUpdate(data) {
+            try {
+                const res = await fetch('/api/profile', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                const result = await res.json();
+                if (result.success) {
+                    userData = data;
+                    updateUI();
+                    alert('资料已同步更新！');
+                }
+            } catch (err) { alert('更新失败'); }
+        }
+
+        function openAvatarModal() { document.getElementById('avatar-modal').style.display = 'flex'; }
+        function closeModal(e) { 
+            if (!e || e.target.id === 'avatar-modal' || e.target.tagName === 'BUTTON') {
+                document.getElementById('avatar-modal').style.display = 'none';
+            }
+        }
+
+        // 深色模式切换逻辑
+        const themeBtn = document.getElementById('theme-toggle');
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                document.getElementById('moon-icon').style.display = 'none';
+                document.getElementById('sun-icon').style.display = 'block';
+            } else {
+                document.body.removeAttribute('data-theme');
+                document.getElementById('moon-icon').style.display = 'block';
+                document.getElementById('sun-icon').style.display = 'none';
+            }
+        }
+
+        themeBtn.addEventListener('click', () => {
+            const current = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+            applyTheme(current);
+            localStorage.setItem('theme', current);
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            applyTheme(localStorage.getItem('theme'));
+        });
+    </script>
+</body>
+</html>

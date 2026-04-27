@@ -31,6 +31,8 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
 
+app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'views', 'about.html')));
+
 // 2. API 接口路由
 app.use('/api', apiRoutes);
 

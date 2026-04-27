@@ -40,6 +40,28 @@ function initDatabase() {
             FOREIGN KEY (article_id) REFERENCES articles(id) ON DELETE CASCADE
         )
     `);
+
+    // --- 3. 新增：创建个人信息表 ---
+    // 使用 CHECK (id = 1) 确保这是唯一的博主资料
+    db.exec(`
+        CREATE TABLE IF NOT EXISTS user_profile (
+            id INTEGER PRIMARY KEY CHECK (id = 1), 
+            nickname TEXT DEFAULT '博主名称',
+            bio TEXT DEFAULT '欢迎来到我的个人博客',
+            avatar_url TEXT DEFAULT '/img/default-avatar.png',
+            updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        )
+    `);
+
+    // --- 4. 新增：初始化默认资料 ---
+    const profileCount = db.prepare('SELECT COUNT(*) as count FROM user_profile').get();
+    if (profileCount.count === 0) {
+        db.prepare(`
+            INSERT INTO user_profile (id, nickname, bio, avatar_url) 
+            VALUES (1, 'Admin', '这是我的个人简介，点击编辑按钮可以修改。', '/img/default-avatar.png')
+        `).run();
+        console.log('✔ 已生成默认博主资料记录');
+    }
     
     console.log('Database initialized successfully.');
 }
