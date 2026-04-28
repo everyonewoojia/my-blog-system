@@ -191,8 +191,9 @@ class ArticleModel {
      * 获取所有元数据（分类和标签列表）
      */
     static async getAllMetadata() {
-        const categories = db.prepare('SELECT name FROM category_metadata ORDER BY name ASC').all();
-        const tags = db.prepare('SELECT name FROM tag_metadata ORDER BY name ASC').all();
+        // 1. 修改表名为 categories 和 tags
+        const categories = db.prepare('SELECT name FROM categories ORDER BY name ASC').all();
+        const tags = db.prepare('SELECT name FROM tags ORDER BY name ASC').all();
         return {
             categories: categories.map(c => c.name),
             tags: tags.map(t => t.name)
@@ -205,11 +206,13 @@ class ArticleModel {
      */
     static syncMetadata(category, tagsString) {
         if (category) {
-            db.prepare('INSERT OR IGNORE INTO category_metadata (name) VALUES (?)').run(category);
+            // 2. 修改表名为 categories
+            db.prepare('INSERT OR IGNORE INTO categories (name) VALUES (?)').run(category);
         }
         if (tagsString) {
             const tags = tagsString.split(',').map(t => t.trim()).filter(t => t);
-            const insertTag = db.prepare('INSERT OR IGNORE INTO tag_metadata (name) VALUES (?)');
+            // 3. 修改表名为 tags
+            const insertTag = db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)');
             tags.forEach(tag => insertTag.run(tag));
         }
     }

@@ -1,5 +1,6 @@
 // controllers/articleController.js
 const Article = require('../models/Article');
+const { db } = require('../config/database');
 
 /**
  * 辅助函数：生成文章摘要
@@ -185,20 +186,63 @@ const articleController = {
      */
     getMetadata: async (req, res) => {
         try {
-            // 1. 获取分类：从文章表提取已有的
-            const categories = await Article.getCategoryStats();
-            // 2. 获取标签：调用已有的 getTagStats
-            const tags = await Article.getTagStats();
-            
+            const categories = db.prepare('SELECT name FROM categories').all();
+            const tags = db.prepare('SELECT name FROM tags').all();
             res.json({ 
                 success: true, 
                 data: {
-                    categories: categories.map(c => c.category),
+                    categories: categories.map(c => c.name),
                     tags: tags.map(t => t.name)
                 }
             });
         } catch (error) {
-            res.status(500).json({ success: true, categories: ['技术', '生活'], tags: [] });
+            res.status(500).json({ success: false, message: "数据库查询失败" });
+        }
+    },
+
+    /**
+     * 添加分类
+     * POST /api/articles/categories
+     */
+    addCategory: async (req, res) => {
+        const { name } = req.body;
+        if (!name) return res.status(400).json({ success: false, message: '分类名称不能为空' });
+
+        try {
+            // 使用同步的 prepare 和 run
+            const stmt = db.prepare(`INSERT INTO categories (name) VALUES (?)`);
+            stmt.run(name); 
+            
+            res.json({ success: true, message: '分类已永久保存' });
+        } catch (err) {
+            console.error("添加分类报错:", err);
+            // 处理 SQLite 唯一约束冲突 (name 已存在)
+            if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+                return res.status(400).json({ success: false, message: '该分类已存在' });
+            }
+            res.status(500).json({ success: false, message: '服务器错误' });
+        }
+    },
+
+    /**
+     * 添加标签
+     * POST /api/articles/tags
+     */
+    addTag: async (req, res) => {
+        const { name } = req.body;
+        if (!name) return res.status(400).json({ success: false, message: '标签名称不能为空' });
+
+        try {
+            const stmt = db.prepare(`INSERT INTO tags (name) VALUES (?)`);
+            stmt.run(name); 
+            
+            res.json({ success: true, message: '标签已永久保存' });
+        } catch (err) {
+            console.error("添加标签报错:", err);
+            if (err.code === 'SQLITE_CONSTRAINT_UNIQUE') {
+                return res.status(400).json({ success: false, message: '该标签已存在' });
+            }
+            res.status(500).json({ success: false, message: '服务器错误' });
         }
     }
 };

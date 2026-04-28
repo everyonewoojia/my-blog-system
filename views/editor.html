@@ -412,37 +412,98 @@
 
     // --- 7. 事件绑定总汇 ---
     function bindGlobalEvents() {
-        // 监听输入即时预览
+        // 1. 监听输入即时预览
         document.getElementById('markdown-input').addEventListener('input', updatePreview);
 
-        // 提交按钮
+        // 2. 提交按钮
         document.getElementById('publish-btn').addEventListener('click', handleSave);
 
-        // 下拉菜单显示/隐藏逻辑
+        // 3. 下拉菜单逻辑 (优化：防止由于点击内部导致下拉框消失)
         document.addEventListener('click', (e) => {
             ['category', 'tag'].forEach(type => {
                 const wrapper = document.getElementById(`${type}-select-wrapper`);
                 const dropdown = document.getElementById(`${type}-dropdown`);
-                if (wrapper && wrapper.contains(e.target)) {
+                if (!wrapper || !dropdown) return;
+
+                if (wrapper.contains(e.target)) {
+                    // 如果点的是触发器，切换显示
                     if (e.target.classList.contains('select-trigger')) {
                         dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
                     }
-                } else if (dropdown) {
+                    // 如果点的是下拉框内部（比如输入框、+号按钮），保持显示，不执行任何操作
+                } else {
+                    // 只有点到 wrapper 外部才隐藏
                     dropdown.style.display = 'none';
                 }
             });
         });
 
-        // 新增分类/标签按钮
-        document.getElementById('add-category-btn').onclick = () => {
-            const input = document.getElementById('new-category-input');
-            if (input.value.trim()) {
-                if (!categories.includes(input.value.trim())) categories.push(input.value.trim());
-                input.value = '';
-                renderOptions('category');
-            }
-        };
-        // (标签同理，此处略，可按需补充)
+        // 4. 新增分类按钮 (修正路径并增强稳定性)
+        const addCatBtn = document.getElementById('add-category-btn');
+        if (addCatBtn) {
+            addCatBtn.onclick = async (e) => {
+                e.stopPropagation(); // 阻止冒泡，防止被 document 的点击事件干扰
+                const input = document.getElementById('new-category-input');
+                const val = input.value.trim();
+
+                if (val) {
+                    try {
+                        // 注意这里的路径：必须包含 /articles/
+                        const response = await fetch('/api/articles/categories', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name: val })
+                        });
+                        const result = await response.json();
+
+                        if (result.success) {
+                            if (!categories.includes(val)) {
+                                categories.push(val);
+                            }
+                            input.value = '';
+                            renderOptions('category');
+                            alert('分类已永久保存');
+                        } else {
+                            alert('保存失败：' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('网络错误:', error);
+                    }
+                }
+            };
+        }
+
+        // 5. 新增标签按钮 (同理修正路径)
+        const addTagBtn = document.getElementById('add-tag-btn');
+        if (addTagBtn) {
+            addTagBtn.onclick = async (e) => {
+                e.stopPropagation();
+                const input = document.getElementById('new-tag-input');
+                const val = input.value.trim();
+                if (val) {
+                    try {
+                        const response = await fetch('/api/articles/tags', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ name: val })
+                        });
+                        const result = await response.json();
+                        if (result.success) {
+                            if (!tags.includes(val)) {
+                                tags.push(val);
+                            }
+                            input.value = '';
+                            renderOptions('tag');
+                            alert('标签已永久保存');
+                        } else {
+                            alert('保存失败：' + result.message);
+                        }
+                    } catch (error) {
+                        console.error('网络错误:', error);
+                    }
+                }
+            };
+        }
     }
 
     // --- 8. 辅助功能：元数据与主题 ---

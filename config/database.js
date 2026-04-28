@@ -63,51 +63,45 @@ function initDatabase() {
         console.log('✔ 已生成默认博主资料记录');
     }
 
-    // --- 5. 新增：初始化默认标签 ---
-    // 逻辑 A：为没有标签的存量文章增加默认标签
-    // 这能解决首页因标签字段为 NULL 导致无法正常加载或过滤的问题
-    const articlesWithoutTags = db.prepare("SELECT COUNT(*) as count FROM articles WHERE tags IS NULL OR tags = ''").get();
-    if (articlesWithoutTags.count > 0) {
-        console.log('正在为无标签文章设置默认标签...');
-        db.prepare("UPDATE articles SET tags = '日常,未分类' WHERE tags IS NULL OR tags = ''").run();
-    }
-
-    // 逻辑 B (可选进阶)：创建一个标签元数据表，用于存储“常用标签”
-    // 这样在编辑界面可以展示“推荐标签”给用户选择
+    // --- 5. 新增：创建分类和标签表 ---
     db.exec(`
-        CREATE TABLE IF NOT EXISTS tag_metadata (
+        CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT UNIQUE NOT NULL
-        )
+        );
+        CREATE TABLE IF NOT EXISTS tags (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT UNIQUE NOT NULL
+        );
     `);
 
-    const defaultTags = ['JavaScript', 'CSS', 'Vue', 'Node.js', 'HTML', '技术分享'];
-    const checkTagStmt = db.prepare("SELECT COUNT(*) as count FROM tag_metadata WHERE name = ?");
-    const insertTagStmt = db.prepare("INSERT INTO tag_metadata (name) VALUES (?)");
+    // --- 插入默认分类 (修正这里的表名) ---
+    const defaultCats = ['技术', '生活', '杂谈', '默认分类'];
+    // 关键点：这里必须改成 categories，不能是 category_metadata
+    const checkCatStmt = db.prepare("SELECT COUNT(*) as count FROM categories WHERE name = ?");
+    const insertCatStmt = db.prepare("INSERT INTO categories (name) VALUES (?)");
+
+    defaultCats.forEach(cat => {
+        const result = checkCatStmt.get(cat);
+        if (result.count === 0) {
+            insertCatStmt.run(cat);
+            console.log(`初始化默认分类: ${cat}`);
+        }
+    });
+
+    // --- 插入默认标签 (修正这里的表名) ---
+    const defaultTags = ['JavaScript', 'Node.js', 'HTML', 'CSS', 'Vue'];
+    // 关键点：这里必须改成 tags，不能是 tag_metadata
+    const checkTagStmt = db.prepare("SELECT COUNT(*) as count FROM tags WHERE name = ?");
+    const insertTagStmt = db.prepare("INSERT INTO tags (name) VALUES (?)");
 
     defaultTags.forEach(tag => {
         const result = checkTagStmt.get(tag);
         if (result.count === 0) {
             insertTagStmt.run(tag);
-            console.log(`添加默认推荐标签: ${tag}`);
+            console.log(`初始化默认标签: ${tag}`);
         }
     });
-
-    // --- 6. 新增：确保已有标签元数据表，并新增分类元数据表 ---
-    db.exec(`
-        CREATE TABLE IF NOT EXISTS tag_metadata (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL
-        );
-        CREATE TABLE IF NOT EXISTS category_metadata (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT UNIQUE NOT NULL
-        );
-    `);
-
-    const defaultCats = ['技术', '生活', '杂谈', '默认分类'];
-    const insertCatStmt = db.prepare("INSERT OR IGNORE INTO category_metadata (name) VALUES (?)");
-    defaultCats.forEach(cat => insertCatStmt.run(cat));
     
     console.log('Database initialized successfully.');
 }

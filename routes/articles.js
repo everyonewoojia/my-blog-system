@@ -9,6 +9,12 @@ router.get('/stats', articleController.getStats);
 router.get('/tag-stats', articleController.getTagStats);
 router.get('/metadata', articleController.getMetadata);
 
+// --- 新增：持久化保存分类和标签 ---
+// 对应前端 fetch('/api/articles/categories', ...)
+router.post('/categories', articleController.addCategory); 
+// 对应前端 fetch('/api/articles/tags', ...)
+router.post('/tags', articleController.addTag);
+
 // --- 路由配置：必须确保第二个参数在 articleController 中真实存在 ---
 
 // 1. 获取文章列表 (之前报错的第 6 行)
