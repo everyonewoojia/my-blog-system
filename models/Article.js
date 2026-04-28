@@ -6,7 +6,7 @@ class ArticleModel {
      * 获取文章列表
      * 适配 articleController.js 的调用：Article.findAll(page, limit, category)
      */
-    static async findAll({ page = 1, limit = 10, category = null, keyword = null }) {
+    static async findAll({ page = 1, limit = 10, category = null, keyword = null, tag = null } = {}) {
         const offset = (page - 1) * limit;
         let query = 'SELECT * FROM articles WHERE 1=1';
         let countQuery = 'SELECT COUNT(*) as total FROM articles WHERE 1=1';
@@ -16,6 +16,12 @@ class ArticleModel {
             query += ' AND category = ?';
             countQuery += ' AND category = ?';
             params.push(category);
+        }
+
+        if (tag) {
+            query += ' AND tags LIKE ?';
+            countQuery += ' AND tags LIKE ?';
+            params.push(`%${tag}%`);
         }
 
         if (keyword) {
@@ -53,6 +59,7 @@ class ArticleModel {
         try {
             const stmt = db.prepare('SELECT * FROM articles WHERE id = ?');
             return stmt.get(id); // 获取单行数据
+            return article;
         } catch (error) {
             console.error('Database Error (findById):', error);
             throw error;
@@ -64,17 +71,27 @@ class ArticleModel {
      */
     static async create(data) {
         try {
+            // 1. 插入文章
             const stmt = db.prepare(`
-                INSERT INTO articles (title, content, excerpt, category)
-                VALUES (@title, @content, @excerpt, @category)
+                INSERT INTO articles (title, content, excerpt, category, tags) 
+                VALUES (@title, @content, @excerpt, @category, @tags)
             `);
             const result = stmt.run({
                 title: data.title,
                 content: data.content,
                 excerpt: data.excerpt || '',
-                category: data.category || '默认分类'
+                category: data.category || '默认分类',
+                tags: data.tags || ''
             });
-            return result.lastInsertRowid; // 返回新插入的 ID
+
+            // 2. 永久保存标签到元数据表 (Sync Metadata)
+            if (data.tags) {
+                const tagList = data.tags.split(',').map(t => t.trim()).filter(t => t);
+                const insertTag = db.prepare('INSERT OR IGNORE INTO tag_metadata (name) VALUES (?)');
+                tagList.forEach(tag => insertTag.run(tag));
+            }
+
+            return result.lastInsertRowid;
         } catch (error) {
             console.error('Database Error (create):', error);
             throw error;
@@ -88,20 +105,13 @@ class ArticleModel {
         try {
             const stmt = db.prepare(`
                 UPDATE articles 
-                SET title = @title, 
-                    content = @content, 
-                    excerpt = @excerpt, 
-                    category = @category,
-                    updated_at = CURRENT_TIMESTAMP
+                SET title = @title, content = @content, excerpt = @excerpt, 
+                    category = @category, tags = @tags, updated_at = CURRENT_TIMESTAMP
                 WHERE id = @id
             `);
-            stmt.run({
-                id,
-                title: data.title,
-                content: data.content,
-                excerpt: data.excerpt,
-                category: data.category
-            });
+            stmt.run({ id, ...data });
+            // 同步元数据
+            this.syncMetadata(data.category, data.tags);
             return true;
         } catch (error) {
             console.error('Database Error (update):', error);
@@ -150,6 +160,57 @@ class ArticleModel {
         } catch (error) {
             console.error('Database Error (getCategoryStats):', error);
             throw error;
+        }
+    }
+
+    /**
+     * 获取所有不重复的标签及其计数
+     */
+    static async getTagStats() {
+        try {
+            const allTagsRow = db.prepare('SELECT tags FROM articles WHERE tags IS NOT NULL').all();
+            const tagMap = {};
+            
+            allTagsRow.forEach(row => {
+                if (row.tags) {
+                    row.tags.split(',').forEach(t => {
+                        const tag = t.trim();
+                        if (tag) tagMap[tag] = (tagMap[tag] || 0) + 1;
+                    });
+                }
+            });
+
+            return Object.keys(tagMap).map(name => ({ name, count: tagMap[name] }));
+        } catch (error) {
+            console.error('Get Tag Stats Error:', error);
+            return [];
+        }
+    }
+
+    /**
+     * 获取所有元数据（分类和标签列表）
+     */
+    static async getAllMetadata() {
+        const categories = db.prepare('SELECT name FROM category_metadata ORDER BY name ASC').all();
+        const tags = db.prepare('SELECT name FROM tag_metadata ORDER BY name ASC').all();
+        return {
+            categories: categories.map(c => c.name),
+            tags: tags.map(t => t.name)
+        };
+    }
+
+    /**
+     * 私有辅助方法：维护元数据表
+     * 当新文章使用了不存在的分类或标签时，自动记录
+     */
+    static syncMetadata(category, tagsString) {
+        if (category) {
+            db.prepare('INSERT OR IGNORE INTO category_metadata (name) VALUES (?)').run(category);
+        }
+        if (tagsString) {
+            const tags = tagsString.split(',').map(t => t.trim()).filter(t => t);
+            const insertTag = db.prepare('INSERT OR IGNORE INTO tag_metadata (name) VALUES (?)');
+            tags.forEach(tag => insertTag.run(tag));
         }
     }
 }

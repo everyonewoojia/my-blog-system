@@ -199,9 +199,9 @@
                             <td>${article.category || '默认'}</td>
                             <td><span class="status-badge">已发布</span></td>
                             <td>${new Date(article.created_at || Date.now()).toLocaleDateString()}</td>
-                            <td>
-                                <button class="action-btn btn-edit" onclick="window.location.href='/editor?id=${article.id}'">编辑</button>
-                                <button class="action-btn btn-delete" onclick="deleteArticle(${article.id})">删除</button>
+                            <td class="admin-actions">
+                                <button onclick="editArticle(${article.id})" class="edit-btn">编辑</button>
+                                <button onclick="deleteArticle(${article.id})" class="delete-btn">删除</button>
                             </td>
                         </tr>
                     `).join('');
@@ -211,6 +211,17 @@
             } catch (error) {
                 listContainer.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">加载失败</td></tr>';
             }
+        }
+
+        // 新增编辑跳转函数
+        function editArticle(id) {
+            console.log("正在准备编辑文章，ID:", id); // 用于调试，确认 ID 是否抓取成功
+            if (!id) {
+                alert("无法获取文章 ID");
+                return;
+            }
+            // 正确跳转到编辑页面，并携带查询参数 id
+            window.location.href = `/editor?id=${id}`;
         }
 
         async function deleteArticle(id) {

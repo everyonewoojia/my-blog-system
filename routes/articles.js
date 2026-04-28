@@ -6,6 +6,8 @@ const articleController = require('../controllers/articleController');
 
 // --- 新增：获取分类统计信息 ---
 router.get('/stats', articleController.getStats);
+router.get('/tag-stats', articleController.getTagStats);
+router.get('/metadata', articleController.getMetadata);
 
 // --- 路由配置：必须确保第二个参数在 articleController 中真实存在 ---
 

@@ -30,14 +30,15 @@ const articleController = {
      */
     getArticles: async (req, res) => {
         try {
-            const { page = 1, limit = 10, category, keyword } = req.query; // 确保提取了 keyword
+            const { page = 1, limit = 10, category, keyword, tag } = req.query; // 确保提取了 keyword
 
             // 调用 Model 层，将 keyword 传入
             const { articles, total } = await Article.findAll({ 
                 page: parseInt(page), 
                 limit: parseInt(limit), 
                 category,
-                keyword 
+                keyword,
+                tag 
             });
 
             res.json({ success: true, data: articles, total });
@@ -52,7 +53,7 @@ const articleController = {
      */
     getArticleById: async (req, res) => {
         try {
-            const id = req.params.id;
+            const { id } = req.params;
             const article = await Article.findById(id);
             
             if (!article) {
@@ -62,10 +63,7 @@ const articleController = {
             // 阅读量自增
             await Article.incrementViewCount(id);
 
-            res.json({
-                success: true,
-                data: article
-            });
+            res.json({ success: true, data: article });
         } catch (error) {
             console.error('获取文章详情失败:', error);
             res.status(500).json({ success: false, message: '服务器内部错误' });
@@ -78,7 +76,8 @@ const articleController = {
      */
     createArticle: async (req, res) => {
         try {
-            const { title, content, category } = req.body;
+            const { title, content, category, tags } = req.body;
+            const excerpt = generateExcerpt(content);
 
             if (!title || !content) {
                 return res.status(400).json({ success: false, message: '标题和内容不能为空' });
@@ -88,7 +87,9 @@ const articleController = {
                 title,
                 content,
                 excerpt: generateExcerpt(content), // 自动生成摘要
-                category: category || '默认分类'
+                category: category || '默认分类',
+                tags: tags || [],
+                excerpt
             };
 
             const newId = await Article.create(articleData);
@@ -110,15 +111,10 @@ const articleController = {
     updateArticle: async (req, res) => {
         try {
             const id = req.params.id;
-            const { title, content, category } = req.body;
+            const { title, content, category, tags } = req.body;
 
-            const updateData = {};
-            if (title) updateData.title = title;
-            if (content) {
-                updateData.content = content;
-                updateData.excerpt = generateExcerpt(content);
-            }
-            if (category) updateData.category = category;
+            const updateData = { id, title, content, category, tags };
+            updateData.excerpt = generateExcerpt(content);
 
             await Article.update(id, updateData);
 
@@ -167,6 +163,42 @@ const articleController = {
             res.json({ success: true, data: stats });
         } catch (error) {
             res.status(500).json({ success: false, message: error.message });
+        }
+    },
+
+    /**
+     * 获取标签统计信息
+     * GET /api/articles/tag-stats
+     */
+    getTagStats: async (req, res) => {
+        try {
+            const stats = await Article.getTagStats();
+            res.json({ success: true, data: stats });
+        } catch (error) {
+            res.status(500).json({ success: false });
+        }
+    },
+
+    /**
+     * 获取编辑器所需的分类和标签种子数据
+     * GET /api/articles/metadata
+     */
+    getMetadata: async (req, res) => {
+        try {
+            // 1. 获取分类：从文章表提取已有的
+            const categories = await Article.getCategoryStats();
+            // 2. 获取标签：调用已有的 getTagStats
+            const tags = await Article.getTagStats();
+            
+            res.json({ 
+                success: true, 
+                data: {
+                    categories: categories.map(c => c.category),
+                    tags: tags.map(t => t.name)
+                }
+            });
+        } catch (error) {
+            res.status(500).json({ success: true, categories: ['技术', '生活'], tags: [] });
         }
     }
 };

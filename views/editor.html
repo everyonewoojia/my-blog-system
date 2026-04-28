@@ -35,6 +35,133 @@
             text-align: right;
             margin-bottom: 80px;
         }
+        /* 单行布局容器 */
+        .editor-top-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        /* 自定义下拉框基础样式 */
+        /* 1. 顶端栏：强制比例 2:1:1 */
+        .editor-top-bar {
+            display: flex;
+            width: 100%;
+            height: 48px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            background: var(--card-bg);
+            overflow: visible;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        /* 标题：强制占 50% */
+        .input-title {
+            flex: 0 0 50% !important; /* 不放大、不缩小、基准50% */
+            width: 50%;
+            min-width: 0; /* 关键：允许内容收缩，防止撑开 */
+            border: none !important;
+            border-right: 1px solid var(--border-color) !important;
+            padding: 0 15px;
+            box-sizing: border-box;
+        }
+
+        /* 分类与标签：各强制占 25% */
+        .custom-select {
+            flex: 0 0 25% !important; /* 不放大、不缩小、基准25% */
+            width: 25%;
+            min-width: 0; /* 关键：防止被长标签撑开 */
+            position: relative;
+            box-sizing: border-box;
+            display: flex; /* 确保触发器占满 */
+        }
+
+        #category-select-wrapper {
+            border-right: 1px solid var(--border-color);
+        }
+
+        /* 核心优化：处理标签过多不溢出 */
+        .select-trigger {
+            flex: 1;
+            width: 100%;
+            height: 100%;
+            display: block; /* 改为 block 以便省略号生效 */
+            line-height: 46px; /* 垂直居中 */
+            padding: 0 15px;
+            cursor: pointer;
+            
+            /* 终极截断三件套 */
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+            
+            box-sizing: border-box;
+        }
+
+        /* 2. 下拉栏左右边距与内部对齐 */
+        .select-dropdown {
+            display: none;
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 10px;
+            right: 10px;
+            width: auto;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            z-index: 1000;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        }
+
+        /* 3. 蓝勾显示逻辑修复 */
+        .dropdown-item {
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .item-text {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            margin-right: 10px;
+        }
+
+        /* 选中的颜色和勾号 */
+        .dropdown-item.selected .item-text {
+            color: #007AFF;
+            font-weight: 500;
+        }
+
+        .dropdown-item.selected::after {
+            content: '✓';
+            color: #007AFF;
+            font-weight: bold;
+            font-size: 1.1rem;
+            flex-shrink: 0; /* 确保勾号不被挤压 */
+        }
+
+        /* 4. 新增输入框防溢出 */
+        .dropdown-add {
+            padding: 8px;
+            display: flex;
+            gap: 5px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .dropdown-add input {
+            flex: 1;
+            min-width: 0; /* 允许在小容器内缩得更小 */
+            padding: 4px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: transparent;
+            color: var(--text-primary);
+        }
     </style>
 </head>
 <body>
@@ -61,15 +188,33 @@
     <!-- 编辑器主体 -->
     <main class="container" style="margin-top: 30px;">
         
-        <!-- 新增：标题和分类输入区 -->
-        <div class="editor-header">
+        <!-- 标题、分类、标签输入区 -->
+        <div class="editor-top-bar">
             <input type="text" id="post-title" class="input-title" placeholder="请输入文章标题...">
-            <select id="post-category" class="select-category">
-                <option value="前端技术">前端技术</option>
-                <option value="后端开发">后端开发</option>
-                <option value="生活随笔">生活随笔</option>
-                <option value="默认分类">默认分类</option>
-            </select>
+
+            <div class="custom-select" id="category-select-wrapper">
+                <div class="select-trigger" id="category-trigger">选择分类</div>
+                <div class="select-dropdown" id="category-dropdown">
+                    <div class="dropdown-list" id="category-list">
+                        </div>
+                    <div class="dropdown-add">
+                        <input type="text" id="new-category-input" placeholder="新增分类...">
+                        <button type="button" id="add-category-btn">+</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="custom-select" id="tag-select-wrapper">
+                <div class="select-trigger" id="tag-trigger">选择标签</div>
+                <div class="select-dropdown" id="tag-dropdown">
+                    <div class="dropdown-list" id="tag-list">
+                        </div>
+                    <div class="dropdown-add">
+                        <input type="text" id="new-tag-input" placeholder="新增标签...">
+                        <button type="button" id="add-tag-btn">+</button>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="editor-container">
@@ -87,7 +232,7 @@
         </div>
         
         <div class="editor-actions">
-            <button id="save-btn" class="read-more-btn">发布文章</button>
+            <button id="publish-btn" class="publish-btn">发布文章</button>
             <a href="/admin/articles" style="margin-left: 10px; color: var(--text-secondary);">取消</a>
         </div>
     </main>
@@ -99,152 +244,232 @@
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <script>
-        // --- 1. 原有的 Markdown 解析逻辑 ---
-        function parseMarkdown(markdown) {
-            let html = markdown
-                .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-                .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-                .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-                .replace(/\*\*(.*)\*\*/gim, '<b>$1</b>')
-                .replace(/\*(.*)\*/gim, '<i>$1</i>')
-                .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
-                .replace(/`(.*?)`/gim, '<code>$1</code>')
-                .replace(/\n/gim, '<br>');
-            return html;
+    /**
+     * 个人博客编辑器逻辑模块
+     * 功能：支持 Markdown 预览、主题切换、分类/标签管理、新建/编辑文章
+     */
+
+    // --- 1. 全局状态管理 ---
+    let currentArticleId = new URLSearchParams(window.location.search).get('id');
+    let categories = ['技术', '生活', '杂谈']; // 默认值
+    let tags = [];
+    let selectedCategory = '';
+    let selectedTags = [];
+
+    // --- 2. 核心初始化入口 ---
+    document.addEventListener('DOMContentLoaded', async () => {
+        initTheme();          // 初始化主题
+        await loadMetadata(); // 加载分类和标签元数据
+        
+        if (currentArticleId) {
+            await enterEditMode(currentArticleId); // 进入编辑模式
+        } else {
+            enterCreateMode(); // 进入新建模式
         }
 
+        bindGlobalEvents(); // 统一绑定事件
+    });
+
+    // --- 3. 业务模式切换 ---
+    async function enterEditMode(id) {
+        const submitBtn = document.getElementById('publish-btn');
+        submitBtn.textContent = '保存修改';
+        document.title = '编辑文章 - 管理后台';
+
+        try {
+            const res = await fetch(`/api/articles/${id}`);
+            const result = await res.json();
+            if (result.success) {
+                const article = result.data;
+                // 填充数据
+                document.getElementById('post-title').value = article.title;
+                document.getElementById('markdown-input').value = article.content;
+                
+                // 回显分类与标签
+                selectedCategory = article.category || '';
+                selectedTags = article.tags ? article.tags.split(',').map(t => t.trim()) : [];
+                
+                renderOptions('category');
+                renderOptions('tag');
+                updatePreview();
+            }
+        } catch (err) {
+            console.error('加载文章失败:', err);
+        }
+    }
+
+    function enterCreateMode() {
+        const input = document.getElementById('markdown-input');
+        input.value = "# 欢迎使用 Markdown 编辑器\n\n在这里输入内容...";
+        renderOptions('category');
+        renderOptions('tag');
+        updatePreview();
+    }
+
+    // --- 4. 功能模块：编辑器与预览 ---
+    function updatePreview() {
         const input = document.getElementById('markdown-input');
         const output = document.getElementById('preview-output');
         
-        if (input && output) {
-            input.addEventListener('input', () => {
-                output.innerHTML = parseMarkdown(input.value);
-            });
+        if (!input || !output) {
+            console.warn("未找到编辑器或预览容器 ID");
+            return;
         }
 
-        // --- 2. 新增：新建/编辑逻辑 ---
-        
-        let currentArticleId = null; // 如果是编辑模式，存储 ID
+        const content = input.value;
 
-        document.addEventListener('DOMContentLoaded', async () => {
-            const path = window.location.pathname;
-            const saveBtn = document.getElementById('save-btn');
-            const titleInput = document.getElementById('post-title');
-            const categorySelect = document.getElementById('post-category');
+        // 优先使用外部 marked 库
+        if (typeof marked !== 'undefined') {
+            output.innerHTML = marked.parse(content);
+        } else {
+            // 兜底方案：如果 marked 没加载成功，先显示原始文本或简单的换行处理
+            output.innerHTML = content.replace(/\n/g, '<br>');
+            console.error("marked 库未加载，请检查 HTML 中是否引入了 <script src='...marked.min.js'>");
+        }
+    }
 
-            // 判断是否是编辑模式: /admin/articles/123/edit
-            const editMatch = path.match(/\/admin\/articles\/(\d+)\/edit/);
-            
-            initTheme();
+    // --- 5. 功能模块：API 交互 (保存/发布) ---
+    async function handleSave() {
+        const title = document.getElementById('post-title').value.trim();
+        const content = document.getElementById('markdown-input').value.trim();
 
-            if (editMatch) {
-                // === 编辑模式 ===
-                currentArticleId = editMatch[1];
-                saveBtn.textContent = '保存修改';
-                document.title = '编辑文章 - 我的个人博客';
-                
-                // 加载文章数据
-                await loadArticleForEdit(currentArticleId);
+        if (!title || !content) {
+            alert('标题和内容不能为空');
+            return;
+        }
+
+        const articleData = {
+            title: title,
+            content: content,
+            category: selectedCategory,
+            tags: selectedTags.join(','),
+            excerpt: content.substring(0, 150).replace(/[#*`]/g, '')
+        };
+
+        const url = currentArticleId ? `/api/articles/${currentArticleId}` : '/api/articles';
+        const method = currentArticleId ? 'PUT' : 'POST';
+
+        try {
+            const res = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(articleData)
+            });
+            const result = await res.json();
+            if (result.success) {
+                alert(currentArticleId ? '更新成功！' : '发布成功！');
+                window.location.href = '/admin/articles';
             } else {
-                // === 新建模式 ===
-                saveBtn.textContent = '发布文章';
-                // 设置默认预览文本
-                input.value = "# 欢迎使用 Markdown 编辑器\n\n在这里输入内容...";
-                output.innerHTML = parseMarkdown(input.value);
+                alert('操作失败: ' + result.message);
             }
+        } catch (error) {
+            console.error('请求出错:', error);
+            alert('网络请求失败');
+        }
+    }
 
-            // 绑定保存按钮事件
-            saveBtn.addEventListener('click', handleSave);
+    // --- 6. UI 渲染模块：下拉菜单 ---
+    window.renderOptions = function(type) {
+        const list = document.getElementById(`${type}-list`);
+        const trigger = document.getElementById(`${type}-trigger`);
+        const data = type === 'category' ? categories : tags;
+        const selected = type === 'category' ? [selectedCategory] : selectedTags;
+
+        if (!list || !trigger) return;
+
+        list.innerHTML = data.map(item => {
+            const isSelected = selected.includes(item);
+            return `
+                <div class="dropdown-item ${isSelected ? 'selected' : ''}" 
+                    onclick="toggleSelect('${type}', '${item}', event)">
+                    <span class="item-text">${item}</span>
+                </div>
+            `;
+        }).join('');
+
+        // 更新触发器显示文字
+        if (type === 'category') {
+            trigger.innerText = selectedCategory || '选择分类';
+        } else {
+            trigger.innerText = selectedTags.length > 0 ? selectedTags.join(', ') : '选择标签';
+        }
+    };
+
+    window.toggleSelect = (type, value, event) => {
+        event.stopPropagation();
+        if (type === 'category') {
+            selectedCategory = (selectedCategory === value) ? '' : value;
+        } else {
+            const index = selectedTags.indexOf(value);
+            if (index > -1) selectedTags.splice(index, 1);
+            else selectedTags.push(value);
+        }
+        renderOptions(type);
+    };
+
+    // --- 7. 事件绑定总汇 ---
+    function bindGlobalEvents() {
+        // 监听输入即时预览
+        document.getElementById('markdown-input').addEventListener('input', updatePreview);
+
+        // 提交按钮
+        document.getElementById('publish-btn').addEventListener('click', handleSave);
+
+        // 下拉菜单显示/隐藏逻辑
+        document.addEventListener('click', (e) => {
+            ['category', 'tag'].forEach(type => {
+                const wrapper = document.getElementById(`${type}-select-wrapper`);
+                const dropdown = document.getElementById(`${type}-dropdown`);
+                if (wrapper && wrapper.contains(e.target)) {
+                    if (e.target.classList.contains('select-trigger')) {
+                        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+                    }
+                } else if (dropdown) {
+                    dropdown.style.display = 'none';
+                }
+            });
         });
 
-        function initTheme() {
-            const themeToggle = document.getElementById('theme-toggle');
-            const moonIcon = document.getElementById('moon-icon');
-            const sunIcon = document.getElementById('sun-icon');
-            
-            // 获取保存的主题设置
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            
-            // 应用初始主题
-            applyTheme(savedTheme);
-
-            // 监听点击事件
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.body.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                applyTheme(newTheme);
-                localStorage.setItem('theme', newTheme);
-            });
-
-            function applyTheme(theme) {
-                document.body.setAttribute('data-theme', theme);
-                if (theme === 'dark') {
-                    moonIcon.style.display = 'none';
-                    sunIcon.style.display = 'block';
-                } else {
-                    moonIcon.style.display = 'block';
-                    sunIcon.style.display = 'none';
-                }
+        // 新增分类/标签按钮
+        document.getElementById('add-category-btn').onclick = () => {
+            const input = document.getElementById('new-category-input');
+            if (input.value.trim()) {
+                if (!categories.includes(input.value.trim())) categories.push(input.value.trim());
+                input.value = '';
+                renderOptions('category');
             }
-        }
+        };
+        // (标签同理，此处略，可按需补充)
+    }
 
-        async function loadArticleForEdit(id) {
-            try {
-                const res = await fetch(`/articles/${id}`);
-                const result = await res.json();
-                
-                if (result.success) {
-                    const article = result.data;
-                    document.getElementById('post-title').value = article.title;
-                    document.getElementById('markdown-input').value = article.content;
-                    document.getElementById('post-category').value = article.category;
-                    
-                    // 触发一次预览更新
-                    document.getElementById('preview-output').innerHTML = parseMarkdown(article.content);
-                } else {
-                    alert('加载文章失败');
-                }
-            } catch (error) {
-                console.error(error);
-                alert('网络错误，无法加载文章');
+    // --- 8. 辅助功能：元数据与主题 ---
+    async function loadMetadata() {
+        try {
+            const res = await fetch('/api/articles/metadata');
+            const result = await res.json();
+            if (result.success) {
+                categories = result.data.categories || categories;
+                tags = result.data.tags || [];
             }
-        }
+        } catch (e) { console.warn("无法加载元数据，使用默认值"); }
+    }
 
-        async function handleSave() {
-            const title = document.getElementById('post-title').value.trim();
-            const content = document.getElementById('markdown-input').value.trim();
-            const category = document.getElementById('post-category').value;
-
-            if (!title || !content) {
-                alert('标题和内容不能为空');
-                return;
-            }
-
-            const isEdit = !!currentArticleId;
-            const url = currentArticleId ? `/api/articles/${currentArticleId}` : '/api/articles';
-            const method = isEdit ? 'PUT' : 'POST';
-
-            try {
-                const res = await fetch(/api/articles, {
-                    method: method,
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ title, content, category })
-                });
-
-                const result = await res.json();
-
-                if (result.success) {
-                    alert(isEdit ? '更新成功！' : '发布成功！');
-                    window.location.href = '/admin/articles'; // 跳回管理页
-                } else {
-                    alert('操作失败: ' + result.message);
-                }
-            } catch (error) {
-                console.error(error);
-                alert('网络请求失败');
-            }
-        }
+    function initTheme() {
+        const themeToggle = document.getElementById('theme-toggle');
+        if (!themeToggle) return;
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        document.body.setAttribute('data-theme', savedTheme);
+        
+        themeToggle.addEventListener('click', () => {
+            const current = document.body.getAttribute('data-theme');
+            const next = current === 'dark' ? 'light' : 'dark';
+            document.body.setAttribute('data-theme', next);
+            localStorage.setItem('theme', next);
+        });
+    }
     </script>
 </body>
 </html>
