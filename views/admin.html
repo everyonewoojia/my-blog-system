@@ -101,9 +101,9 @@
         /* 控制列宽分布 */
         .col-title { width: 40%; }    /* 标题占比最大 */
         .col-cate  { width: 15%; }    /* 其他四项均匀分布 */
-        .col-status { width: 15%; }
+        .col-status { width: 10%; }
         .col-date  { width: 15%; }
-        .col-action { width: 15%; }
+        .col-action { width: 20%; }
 
         .status-badge {
             background: rgba(40, 167, 69, 0.1);
@@ -122,6 +122,41 @@
         .action-btn:hover {
             transform: translateY(-2px);
         }
+
+        /* 通用圆角按钮基础样式 */
+        .admin-table button {
+            border: none;
+            padding: 6px 18px;
+            font-size: 0.85rem;
+            border-radius: 20px; /* 大圆角 */
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        /* 蓝色编辑按钮 */
+        .btn-edit {
+            background-color: #eef6ff;
+            color: #007AFF;
+        }
+
+        .btn-edit:hover {
+            background-color: #007AFF;
+            color: white;
+        }
+
+        /* 红色删除按钮（文章和评论通用） */
+        .btn-delete, .btn-delete-small {
+            background-color: #fff2f2;
+            color: #FF3B30;
+        }
+
+        .btn-delete:hover, .btn-delete-small:hover {
+            background-color: #FF3B30;
+            color: white;
+        }
+
     </style>
 </head>
 <body>
@@ -221,9 +256,9 @@
                             <td>${article.category || '默认'}</td>
                             <td><span class="status-badge">已发布</span></td>
                             <td>${new Date(article.created_at || Date.now()).toLocaleDateString()}</td>
-                            <td class="admin-actions">
-                                <button onclick="editArticle(${article.id})" class="edit-btn">编辑</button>
-                                <button onclick="deleteArticle(${article.id})" class="delete-btn">删除</button>
+                            <td>
+                                <button class="btn-edit" onclick="editArticle(${article.id})">编辑</button>
+                            <button class="btn-delete" onclick="deleteArticle(${article.id})">删除</button>
                             </td>
                         </tr>
                     `).join('');
