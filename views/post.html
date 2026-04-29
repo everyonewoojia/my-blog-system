@@ -11,7 +11,7 @@
     <!-- 顶部导航 -->
     <header>
     <div class="container nav-container">
-        <div class="logo"><a href="index.html">MyBlog</a></div>
+        <div class="logo"><a href="/">MyBlog</a></div>
         <div style="display: flex; align-items: center;">
             <nav class="nav-links">
                 <a href="/">首页</a>
@@ -35,56 +35,17 @@
         <!-- 文章头部 -->
         <article>
             <header class="post-header">
-                <h1 class="post-title">探索现代前端开发趋势</h1>
+                <h1 class="post-title" id="article-title">加载中...</h1>
                 <div class="post-meta">
-                    <span>📅 2023-10-25</span>
-                    <span>📂 前端技术</span>
-                    <span>👁️ 1,234 阅读</span>
+                    <span id="post-date">📅 --</span>
+                    <span id="post-category">📂 --</span>
                 </div>
             </header>
 
             <!-- 文章正文 -->
-            <div class="post-content">
-                <p>随着 Web 技术的飞速发展，前端开发已经不再是简单的切图和写 JavaScript。现代前端工程化、组件化以及服务端渲染（SSR）成为了主流话题。</p>
-                
-                <h2>1. 组件化的演进</h2>
-                <p>从早期的 jQuery 插件模式，到 React、Vue 带来的组件化革命，前端代码的组织方式发生了翻天覆地的变化。组件化不仅提高了代码复用率，还使得大型项目的维护变得更加容易。</p>
-                
-                <blockquote>
-                    "组件是 UI 的基本构建块，它们封装了结构、样式和行为。"
-                </blockquote>
-
-                <h2>2. 状态管理的复杂性</h2>
-                <p>随着应用复杂度的增加，如何管理全局状态成为了一个难题。Redux、Vuex 以及新兴的 Zustand、Jotai 等库提供了不同的解决方案。</p>
-                
-                <pre><code>// 一个简单的 React Counter 示例
-import React, { useState } from 'react';
-
-function Counter() {
-  const [count, setCount] = useState(0);
-  return (
-    &lt;button onClick={() => setCount(count + 1)}&gt;
-      Count: {count}
-    &lt;/button&gt;
-  );
-}</code></pre>
-
-                <h2>3. 性能优化</h2>
-                <p>首屏加载速度（FCP）和交互准备时间（TTI）是衡量用户体验的关键指标。通过代码分割（Code Splitting）、懒加载（Lazy Loading）以及使用 Next.js 等框架进行服务端渲染，我们可以显著提升性能。</p>
-                
-                <p>未来，随着 WebAssembly 和边缘计算的发展，前端开发的边界还将进一步拓展。</p>
-            </div>
+            <div class="post-content" id="article-content">
+                </div>
         </article>
-
-        <!-- 作者信息 -->
-        <div class="author-box">
-            <!-- 这里可以使用真实的图片链接，暂时使用占位符 -->
-            <img src="https://ui-avatars.com/api/?name=Admin&background=0D8ABC&color=fff" alt="Author Avatar" class="author-avatar">
-            <div class="author-info">
-                <h4>博主 Admin</h4>
-                <p>全栈开发者，热爱分享技术与生活。专注于前端工程化与用户体验优化。</p>
-            </div>
-        </div>
 
         <!-- 评论区 -->
         <section class="comments-section">
@@ -92,28 +53,7 @@ function Counter() {
             
             <!-- 评论列表 -->
             <div class="comment-list" id="comment-list">
-                <!-- 静态示例评论 -->
-                <div class="comment-item">
-                    <img src="https://ui-avatars.com/api/?name=User+A&background=random" alt="User A" class="comment-avatar">
-                    <div class="comment-body">
-                        <div class="comment-header">
-                            <span class="comment-author">User A</span>
-                            <span class="comment-date">2023-10-26 10:30</span>
-                        </div>
-                        <p class="comment-text">写得很好！特别是关于状态管理那部分，很有启发。</p>
-                    </div>
-                </div>
-                
-                <div class="comment-item">
-                    <img src="https://ui-avatars.com/api/?name=User+B&background=random" alt="User B" class="comment-avatar">
-                    <div class="comment-body">
-                        <div class="comment-header">
-                            <span class="comment-author">User B</span>
-                            <span class="comment-date">2023-10-26 14:15</span>
-                        </div>
-                        <p class="comment-text">期待下一篇关于 SSR 的深入文章。</p>
-                    </div>
-                </div>
+                <p>正在加载评论...</p>
             </div>
 
             <!-- 发表评论表单 -->
@@ -130,97 +70,146 @@ function Counter() {
                 </form>
             </div>
         </section>
-
     </main>
 
     <!-- 底部版权 -->
     <footer>
         <div class="container">
-            <p>&copy; 2023 MyBlog. All rights reserved.</p>
+            <p>&copy; 2026 MyBlog. All rights reserved.</p>
         </div>
     </footer>
 
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
         // 页面特定的 JS：处理评论提交
         document.addEventListener('DOMContentLoaded', () => {
-            initTheme();
-            const form = document.getElementById('comment-form');
-            const commentList = document.getElementById('comment-list');
+            // 获取 URL 中的文章 ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const articleId = urlParams.get('id');
 
-            if (form) {
-                form.addEventListener('submit', (e) => {
-                    e.preventDefault();
-                    
-                    const nameInput = document.getElementById('comment-name');
-                    const contentInput = document.getElementById('comment-content');
-                    
-                    const name = nameInput.value.trim();
-                    const content = contentInput.value.trim();
-
-                    if (name && content) {
-                        // 创建新评论元素
-                        const newComment = document.createElement('div');
-                        newComment.className = 'comment-item';
-                        
-                        // 获取当前时间
-                        const now = new Date();
-                        const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-
-                        newComment.innerHTML = `
-                            <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=random" alt="${name}" class="comment-avatar">
-                            <div class="comment-body">
-                                <div class="comment-header">
-                                    <span class="comment-author">${name}</span>
-                                    <span class="comment-date">${timeStr}</span>
-                                </div>
-                                <p class="comment-text">${content}</p>
-                            </div>
-                        `;
-
-                        // 添加到列表顶部
-                        commentList.prepend(newComment);
-
-                        // 清空表单
-                        nameInput.value = '';
-                        contentInput.value = '';
-                        
-                        alert('评论发表成功！');
-                    }
-                });
+            if (!articleId) {
+                alert('未找到文章 ID');
+                window.location.href = '/';
+                return;
             }
+
+            // 2. 执行初始化流程
+            loadArticleDetail(articleId);
+            loadComments(articleId);
+            setupCommentSubmission(articleId);
         });
 
-        function initTheme() {
-            const themeToggle = document.getElementById('theme-toggle');
-            const moonIcon = document.getElementById('moon-icon');
-            const sunIcon = document.getElementById('sun-icon');
-            
-            // 检查本地存储
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            
-            // 应用主题的函数
-            const applyTheme = (theme) => {
-                document.body.setAttribute('data-theme', theme);
-                if (theme === 'dark') {
-                    moonIcon.style.display = 'none';
-                    sunIcon.style.display = 'block';
-                } else {
-                    moonIcon.style.display = 'block';
-                    sunIcon.style.display = 'none';
+        /**
+         * 加载文章详情
+         * @param {string} articleId 文章 ID
+         */
+        async function loadArticleDetail(id) {
+            try {
+                const response = await fetch(`/api/articles/${id}`);
+                const result = await response.json();
+
+                // 关键修复：根据你之前的后端逻辑，result 可能是 { success: true, data: { ... } }
+                // 或者直接是 article 对象。这里做一个兼容性判断
+                const article = result.data || result;
+
+                if (!article || (!article.title && !article.content)) {
+                    throw new Error('文章数据格式不正确');
                 }
-            };
 
-            // 初始应用
-            applyTheme(savedTheme);
+                // 1. 填充基础信息
+                document.getElementById('article-title').textContent = article.title || '无标题';
+                document.getElementById('post-date').textContent = `📅 ${article.created_at ? new Date(article.created_at).toLocaleDateString() : '未知日期'}`;
+                document.getElementById('post-category').textContent = `📂 ${article.category || '未分类'}`;
 
-            // 绑定点击事件
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.body.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                
-                applyTheme(newTheme);
-                localStorage.setItem('theme', newTheme);
+                // 2. 渲染正文（解决 marked 报错的核心位置）
+                const contentContainer = document.getElementById('article-content');
+                const rawContent = article.content || ''; // 如果 content 为空，强制转为空字符串
+
+                if (typeof marked !== 'undefined' && rawContent) {
+                    // 只有当 content 有内容时才调用解析
+                    contentContainer.innerHTML = marked.parse(rawContent);
+                } else {
+                    // 如果内容为空或者没引库，直接显示原始内容或提示
+                    contentContainer.textContent = rawContent || '该文章暂无内容';
+                }
+
+                document.title = `${article.title} - 我的个人博客`;
+
+            } catch (err) {
+                console.error('加载文章详情失败:', err);
+                document.getElementById('article-title').textContent = '内容加载失败';
+                document.getElementById('article-content').textContent = '无法获取文章内容，请检查后端 API 是否正常。';
+            }
+        }
+
+        /**
+         * 加载评论列表
+         * @param {string} articleId 文章 ID
+         */
+        async function loadComments(id) {
+            const commentList = document.getElementById('comment-list');
+            try {
+                const response = await fetch(`/api/comments/${id}`);
+                const comments = await response.json();
+
+                if (comments.length === 0) {
+                    commentList.innerHTML = '<p>暂无评论，快来抢沙发吧！</p>';
+                    return;
+                }
+
+                commentList.innerHTML = comments.map(c => `
+                    <div class="comment-item">
+                        <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(c.author_name)}&background=random" class="comment-avatar">
+                        <div class="comment-body">
+                            <div class="comment-header">
+                                <span class="comment-author">${c.author_name}</span>
+                                <span class="comment-date">${new Date(c.created_at).toLocaleString()}</span>
+                            </div>
+                            <p class="comment-text">${c.content}</p>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                commentList.innerHTML = '<p>评论加载失败。</p>';
+            }
+        }
+
+        /**
+         * 设置评论提交处理函数
+         * @param {string} articleId 文章 ID
+         */
+        function setupCommentSubmission(id) {
+            const form = document.getElementById('comment-form');
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const nameInput = document.getElementById('comment-name');
+                const contentInput = document.getElementById('comment-content');
+
+                const payload = {
+                    author_name: nameInput.value.trim(), // 对应你后端要求的变量名
+                    content: contentInput.value.trim()
+                };
+
+                try {
+                    const response = await fetch(`/api/comments/${id}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+
+                    if (response.ok) {
+                        alert('评论发表成功！');
+                        nameInput.value = '';
+                        contentInput.value = '';
+                        loadComments(id); // 刷新评论列表显示最新内容
+                    } else {
+                        throw new Error('提交失败');
+                    }
+                } catch (err) {
+                    alert('服务器忙，请稍后再试');
+                }
             });
         }
     </script>

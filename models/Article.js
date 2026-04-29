@@ -87,7 +87,7 @@ class ArticleModel {
             // 2. 永久保存标签到元数据表 (Sync Metadata)
             if (data.tags) {
                 const tagList = data.tags.split(',').map(t => t.trim()).filter(t => t);
-                const insertTag = db.prepare('INSERT OR IGNORE INTO tag_metadata (name) VALUES (?)');
+                const insertTag = db.prepare('INSERT OR IGNORE INTO tags (name) VALUES (?)');
                 tagList.forEach(tag => insertTag.run(tag));
             }
 

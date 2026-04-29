@@ -133,7 +133,7 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <nav class="nav-links">
                     <a href="/">首页</a>
-                    <a href="/admin/articles" class="active">文章管理</a>
+                    <a href="/admin/articles" class="active">管理</a>
                     <a href="/editor">发布文章</a>
                     <a href="/about">关于我</a>
                 </nav>
@@ -169,6 +169,25 @@
                     </tbody>
             </table>
         </div>
+
+        <div class="admin-header" style="margin-top: 40px;">
+            <h2>评论管理</h2>
+        </div>
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th style="width: 15%;">评论人</th>
+                        <th style="width: 40%;">评论内容</th>
+                        <th style="width: 20%;">所属文章</th>
+                        <th style="width: 15%;">发布时间</th>
+                        <th style="width: 10%;">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="admin-comment-list">
+                    </tbody>
+            </table>
+        </div>
     </main>
 
     <!-- 底部版权 -->
@@ -178,13 +197,16 @@
         </div>
     </footer>
 
+    <script src="/js/script.js"></script>
     <script>
-        // --- 1. 数据加载逻辑 ---
         document.addEventListener('DOMContentLoaded', () => {
             loadAdminArticles();
-            initTheme(); // 初始化主题
+            loadAdminComments();
         });
 
+        /**
+         * 加载文章列表
+         */
         async function loadAdminArticles() {
             const listContainer = document.getElementById('admin-article-list');
             try {
@@ -213,7 +235,10 @@
             }
         }
 
-        // 新增编辑跳转函数
+        /**
+         * 编辑文章
+         * @param {number} id 文章 ID
+         */
         function editArticle(id) {
             console.log("正在准备编辑文章，ID:", id); // 用于调试，确认 ID 是否抓取成功
             if (!id) {
@@ -224,6 +249,10 @@
             window.location.href = `/editor?id=${id}`;
         }
 
+        /**
+         * 删除文章
+         * @param {number} id 文章 ID
+         */
         async function deleteArticle(id) {
             if (!confirm('确定删除吗？')) return;
             try {
@@ -237,27 +266,62 @@
             }
         }
 
-        // --- 2. 主题切换逻辑 (保持与主站一致) ---
-        function initTheme() {
-            const themeToggle = document.getElementById('theme-toggle');
-            const moonIcon = document.getElementById('moon-icon');
-            const sunIcon = document.getElementById('sun-icon');
-            
-            themeToggle.addEventListener('click', () => {
-                const isDark = document.body.getAttribute('data-theme') === 'dark';
-                const newTheme = isDark ? 'light' : 'dark';
-                document.body.setAttribute('data-theme', newTheme);
-                moonIcon.style.display = isDark ? 'block' : 'none';
-                sunIcon.style.display = isDark ? 'none' : 'block';
-                localStorage.setItem('theme', newTheme);
-            });
+        /**
+         * 加载评论列表
+         */
+        async function loadAdminComments() {
+            const tbody = document.getElementById('admin-comment-list');
+            try {
+                // 使用你定义的接口名
+                const response = await fetch('/api/comments/admin/all');
+                const result = await response.json();
 
-            // 回显保存的主题
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                moonIcon.style.display = 'none';
-                sunIcon.style.display = 'block';
+                if (result.success) {
+                    tbody.innerHTML = result.data.map(comment => `
+                        <tr>
+                            <td>${comment.author_name}</td>
+                            <td class="comment-content-cell">${comment.content}</td>
+                            <td><small>${comment.article_title || '（文章已删除）'}</small></td>
+                            <td>${new Date(comment.created_at).toLocaleDateString()}</td>
+                            <td>
+                                <button class="btn-delete-small" onclick="deleteComment(${comment.id})">删除</button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('加载评论失败:', error);
+            }
+        }
+
+        /**
+         * 删除评论
+         * @param {number} id 评论 ID
+         */
+        async function deleteComment(id) {
+            // 1. 确认弹窗
+            if (!confirm('确定要删除这条评论吗？此操作不可撤销。')) return;
+
+            try {
+                const response = await fetch(`/api/comments/${id}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+
+                // 2. 判断后端返回的结果
+                if (result.success === true || result.message === '评论已删除') {
+                    // 3. 成功反馈
+                    alert('删除成功！');
+                    // 4. 自动刷新列表数据（无需刷新整个网页，只刷新表格内容）
+                    loadAdminComments(); 
+                } else {
+                    // 如果后端返回 success: false，则显示后端给的错误信息
+                    alert('删除失败：' + (result.message || '未知原因'));
+                }
+            } catch (error) {
+                console.error('删除请求出错:', error);
+                alert('网络请求失败，请稍后再试');
             }
         }
     </script>

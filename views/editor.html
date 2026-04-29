@@ -173,7 +173,7 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <nav class="nav-links">
                     <a href="/">首页</a>
-                    <a href="/admin/articles">文章管理</a>
+                    <a href="/admin/articles">管理</a>
                     <a href="/editor" class="active">发布文章</a>
                     <a href="/about">关于我</a>
                 </nav>
@@ -245,7 +245,7 @@
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
+    <script src="/js/script.js"></script>
     <script>
     /**
      * 个人博客编辑器逻辑模块
@@ -261,7 +261,6 @@
 
     // --- 2. 核心初始化入口 ---
     document.addEventListener('DOMContentLoaded', async () => {
-        initTheme();          // 初始化主题
         await loadMetadata(); // 加载分类和标签元数据
         
         if (currentArticleId) {
@@ -273,7 +272,10 @@
         bindGlobalEvents(); // 统一绑定事件
     });
 
-    // --- 3. 业务模式切换 ---
+    /**
+     * 3. 进入编辑模式
+     * @param {string} id 文章ID
+     */
     async function enterEditMode(id) {
         const submitBtn = document.getElementById('publish-btn');
         submitBtn.textContent = '保存修改';
@@ -301,6 +303,9 @@
         }
     }
 
+    /**
+     * 3. 进入新建模式
+     */
     function enterCreateMode() {
         const input = document.getElementById('markdown-input');
         input.value = "# 欢迎使用 Markdown 编辑器\n\n在这里输入内容...";
@@ -309,7 +314,10 @@
         updatePreview();
     }
 
-    // --- 4. 功能模块：编辑器与预览 ---
+    /**
+     * 4. 渲染选项列表
+     * @param {string} type 'category' 或 'tag'
+     */
     function updatePreview() {
         const input = document.getElementById('markdown-input');
         const output = document.getElementById('preview-output');
@@ -331,7 +339,9 @@
         }
     }
 
-    // --- 5. 功能模块：API 交互 (保存/发布) ---
+    /**
+     * 5. 绑定全局事件处理函数
+     */
     async function handleSave() {
         const title = document.getElementById('post-title').value.trim();
         const content = document.getElementById('markdown-input').value.trim();
@@ -371,7 +381,9 @@
         }
     }
 
-    // --- 6. UI 渲染模块：下拉菜单 ---
+    /**
+     * 6. 绑定事件处理函数（下拉栏切换）
+     */
     window.renderOptions = function(type) {
         const list = document.getElementById(`${type}-list`);
         const trigger = document.getElementById(`${type}-trigger`);
@@ -410,7 +422,9 @@
         renderOptions(type);
     };
 
-    // --- 7. 事件绑定总汇 ---
+    /**
+     * 7. 绑定全局事件处理函数
+     */
     function bindGlobalEvents() {
         // 1. 监听输入即时预览
         document.getElementById('markdown-input').addEventListener('input', updatePreview);
@@ -506,7 +520,9 @@
         }
     }
 
-    // --- 8. 辅助功能：元数据与主题 ---
+    /**
+     * 8. 加载元数据
+     */
     async function loadMetadata() {
         try {
             const res = await fetch('/api/articles/metadata');
@@ -516,20 +532,6 @@
                 tags = result.data.tags || [];
             }
         } catch (e) { console.warn("无法加载元数据，使用默认值"); }
-    }
-
-    function initTheme() {
-        const themeToggle = document.getElementById('theme-toggle');
-        if (!themeToggle) return;
-        const savedTheme = localStorage.getItem('theme') || 'light';
-        document.body.setAttribute('data-theme', savedTheme);
-        
-        themeToggle.addEventListener('click', () => {
-            const current = document.body.getAttribute('data-theme');
-            const next = current === 'dark' ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', next);
-            localStorage.setItem('theme', next);
-        });
     }
     </script>
 </body>

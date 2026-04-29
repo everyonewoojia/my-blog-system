@@ -140,7 +140,7 @@
             <div style="display: flex; align-items: center; gap: 20px;">
                 <nav class="nav-links">
                     <a href="/">首页</a>
-                    <a href="/admin">文章管理</a>
+                    <a href="/admin">管理</a>
                     <a href="/editor">发布文章</a>
                     <a href="/about" class="active">关于我</a>
                 </nav>
@@ -184,9 +184,13 @@
         <input type="file" id="upload-input" hidden accept="image/*" onchange="uploadAvatar(event)">
     </div>
 
+    <script src="/js/script.js"></script>
     <script>
         let userData = {};
 
+        /**
+         * 加载用户信息
+         */
         async function loadProfile() {
             try {
                 const res = await fetch('/api/profile');
@@ -198,6 +202,9 @@
             } catch (err) { console.error('加载失败', err); }
         }
 
+        /**
+         * 更新 UI
+         */
         function updateUI() {
             // 展示内容
             document.getElementById('display-nickname').textContent = userData.nickname;
@@ -210,12 +217,17 @@
             document.getElementById('modal-img').src = userData.avatar_url;
         }
 
+        /**
+         * 切换编辑模式
+         */
         function toggleEdit(isEdit) {
             document.getElementById('view-mode').style.display = isEdit ? 'none' : 'block';
             document.getElementById('edit-mode').style.display = isEdit ? 'block' : 'none';
         }
 
-        // 同时保存 ID 和 简介
+        /**
+         * 保存所有内容
+         */
         async function saveAll() {
             const newNickname = document.getElementById('input-nickname').value.trim();
             const newBio = document.getElementById('input-bio').value.trim();
@@ -235,7 +247,9 @@
             toggleEdit(false);
         }
 
-        // 更换头像
+        /**
+         * 上传头像
+         */
         function uploadAvatar(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -248,6 +262,9 @@
             reader.readAsDataURL(file);
         }
 
+        /**
+         * 提交更新
+         */
         async function submitUpdate(data) {
             try {
                 const res = await fetch('/api/profile', {
@@ -271,29 +288,8 @@
             }
         }
 
-        // 深色模式切换逻辑
-        const themeBtn = document.getElementById('theme-toggle');
-        function applyTheme(theme) {
-            if (theme === 'dark') {
-                document.body.setAttribute('data-theme', 'dark');
-                document.getElementById('moon-icon').style.display = 'none';
-                document.getElementById('sun-icon').style.display = 'block';
-            } else {
-                document.body.removeAttribute('data-theme');
-                document.getElementById('moon-icon').style.display = 'block';
-                document.getElementById('sun-icon').style.display = 'none';
-            }
-        }
-
-        themeBtn.addEventListener('click', () => {
-            const current = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
-            applyTheme(current);
-            localStorage.setItem('theme', current);
-        });
-
         document.addEventListener('DOMContentLoaded', () => {
             loadProfile();
-            applyTheme(localStorage.getItem('theme'));
         });
     </script>
 </body>

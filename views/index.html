@@ -37,7 +37,7 @@
             <div style="display: flex; align-items: center;">
                 <nav class="nav-links">
                     <a href="/" class="active">首页</a>
-                    <a href="/admin">文章管理</a>
+                    <a href="/admin">管理</a>
                     <a href="/editor">发布文章</a>
                     <a href="/about">关于我</a>
                 </nav>
@@ -103,54 +103,35 @@
         </div>
     </footer>
 
+    <script src="/js/script.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            initTheme();       
-            loadArticles();    
-            loadCategories(); 
-            loadTagCloud();
+            // 1. 获取 DOM 元素
+            const searchInput = document.getElementById('search-input');
+            const categoryList = document.getElementById('category-list');
+
+            // 2. 绑定特有事件（搜索框回车等）
+            if(searchInput) {
+                searchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        loadArticles(e.target.value.trim());
+                    }
+                });
+            }
+
+            // 3. 执行初始数据加载
+            loadArticles();
+            loadCategories();
             loadRecentPosts();
+            loadTagCloud();
         });
 
-        document.getElementById('search-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') {
-                loadArticles(this.value);
-            }
-        });
-
-        // --- 1. 深色模式核心逻辑 ---
-        function initTheme() {
-            const themeToggle = document.getElementById('theme-toggle');
-            const moonIcon = document.getElementById('moon-icon');
-            const sunIcon = document.getElementById('sun-icon');
-            
-            // 获取保存的主题设置
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            
-            // 应用初始主题
-            applyTheme(savedTheme);
-
-            // 监听点击事件
-            themeToggle.addEventListener('click', () => {
-                const currentTheme = document.body.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                applyTheme(newTheme);
-                localStorage.setItem('theme', newTheme);
-            });
-
-            function applyTheme(theme) {
-                document.body.setAttribute('data-theme', theme);
-                if (theme === 'dark') {
-                    moonIcon.style.display = 'none';
-                    sunIcon.style.display = 'block';
-                } else {
-                    moonIcon.style.display = 'block';
-                    sunIcon.style.display = 'none';
-                }
-            }
-        }
-
-        // --- 2. 文章加载逻辑 ---
+        /**
+         * 1.加载文章列表
+         * @param {string} keyword - 搜索关键字
+         * @param {string} category - 分类
+         * @param {string} tag - 标签
+         */
         async function loadArticles(keyword = '', category = '', tag) {
             const listContainer = document.getElementById('article-list');
         try {
@@ -183,7 +164,9 @@
             }
         }
 
-        // --- 3. 加载并渲染分类侧边栏 ---
+        /**
+         * 2.加载分类列表
+         */
         async function loadCategories() {
             const categoryContainer = document.querySelector('.category-list');
             try {
@@ -205,7 +188,9 @@
             }
         }
 
-        // --- 4. 近期文章加载逻辑 ---
+        /**
+         * 3.加载近期文章
+         */
         async function loadRecentPosts() {
             const recentContainer = document.querySelector('.recent-posts');
             if (!recentContainer) return;
@@ -232,7 +217,9 @@
             }
         }
 
-        // --- 5. 标签云加载逻辑 ---
+        /**
+         * 4.加载标签云
+         */
         async function loadTagCloud() {
             const cloud = document.getElementById('tag-cloud');
             if (!cloud) return;
@@ -254,9 +241,6 @@
                 console.error('加载标签云失败:', err);
             }
         }
-
-        // 页面加载时执行
-        loadArticles(); 
     </script>
 </body>
 </html>
