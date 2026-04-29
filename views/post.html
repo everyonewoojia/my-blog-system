@@ -15,7 +15,7 @@
         <div style="display: flex; align-items: center;">
             <nav class="nav-links">
                 <a href="/">首页</a>
-                <a href="/admin">文章管理</a>
+                <a href="/admin">管理</a>
                 <a href="/editor">发布文章</a>
                 <a href="/about">关于我</a>
             </nav>
@@ -82,6 +82,15 @@
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script src="/js/script.js"></script>
     <script>
+        /**
+         * 配置 marked
+         */
+        marked.setOptions({
+            breaks: true,      // 核心配置：允许回车换行
+            gfm: true,         // 启用 GitHub 风格的 Markdown
+            headerIds: false   // 防止标题 ID 冲突（可选）
+        });
+
         // 页面特定的 JS：处理评论提交
         document.addEventListener('DOMContentLoaded', () => {
             // 获取 URL 中的文章 ID

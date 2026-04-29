@@ -254,15 +254,31 @@
          * @param {number} id 文章 ID
          */
         async function deleteArticle(id) {
-            if (!confirm('确定删除吗？')) return;
+            // 1. 用户确认弹窗
+            if (!confirm('警告：删除文章将同时删除其下所有评论！确定要继续吗？')) {
+                return;
+            }
+
             try {
-                const response = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
+                // 2. 发送 DELETE 请求
+                const response = await fetch(`/api/articles/${id}`, {
+                    method: 'DELETE'
+                });
+
                 const result = await response.json();
+
+                // 3. 处理结果
                 if (result.success) {
-                    loadAdminArticles();
+                    alert('文章已删除！');
+                    // 4. 自动刷新页面显示新结果
+                    window.location.reload(); 
+                    // 或者调用你之前写的加载函数，如：loadAdminArticles();
+                } else {
+                    alert('删除失败：' + result.message);
                 }
             } catch (error) {
-                alert('删除失败');
+                console.error('网络请求出错:', error);
+                alert('无法连接到服务器，请检查网络');
             }
         }
 

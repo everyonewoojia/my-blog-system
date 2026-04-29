@@ -259,6 +259,16 @@
     let selectedCategory = '';
     let selectedTags = [];
 
+    /**
+     * 配置 marked 引擎
+     * 允许回车换行、启用 GitHub 风格语法
+     */
+    marked.setOptions({
+        breaks: true,      // 核心配置：允许回车换行
+        gfm: true,         // 启用 GitHub 风格的 Markdown
+        headerIds: false   // 防止标题 ID 冲突（可选）
+    });
+
     // --- 2. 核心初始化入口 ---
     document.addEventListener('DOMContentLoaded', async () => {
         await loadMetadata(); // 加载分类和标签元数据

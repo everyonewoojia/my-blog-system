@@ -136,9 +136,13 @@ class ArticleModel {
      */
     static async delete(id) {
         try {
-            const stmt = db.prepare('DELETE FROM articles WHERE id = ?');
-            stmt.run(id);
-            return true;
+            // 1. 首先删除该文章下的所有评论
+            const deleteCommentsSql = `DELETE FROM comments WHERE article_id = ?`;
+            db.prepare(deleteCommentsSql).run(id);
+
+            // 2. 然后删除文章
+            const deleteArticleSql = `DELETE FROM articles WHERE id = ?`;
+            return db.prepare(deleteArticleSql).run(id);
         } catch (error) {
             console.error('Database Error (delete):', error);
             throw error;
