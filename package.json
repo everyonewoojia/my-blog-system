@@ -19,9 +19,11 @@
   },
   "homepage": "https://github.com/everyonewoojia/my-blog-system#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "better-sqlite3": "^12.9.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
+    "express-session": "^1.19.0",
     "sqlite3": "^6.0.1"
   },
   "devDependencies": {

@@ -1,6 +1,7 @@
 // config/database.js
 const Database = require('better-sqlite3');
 const path = require('path');
+const bcrypt = require('bcryptjs');   // 用于初始化默认密码
 
 // 数据库文件路径
 const DB_PATH = path.join(__dirname, '..', 'blog.db');
@@ -14,7 +15,6 @@ db.pragma('foreign_keys = ON');
 // 初始化表结构
 function initDatabase() {
     // --- 1. 创建文章表 ---
-    // 统一字段名：为了匹配你的 Controller，这里使用 view_count 而不是 views
     db.exec(`
         CREATE TABLE IF NOT EXISTS articles (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,7 +41,7 @@ function initDatabase() {
         )
     `);
 
-    // --- 3. 新增：创建个人信息表 ---
+    // --- 3. 创建个人信息表 ---
     // 使用 CHECK (id = 1) 确保这是唯一的博主资料
     db.exec(`
         CREATE TABLE IF NOT EXISTS user_profile (
@@ -53,17 +53,31 @@ function initDatabase() {
         )
     `);
 
-    // --- 4. 新增：初始化默认资料 ---
-    const profileCount = db.prepare('SELECT COUNT(*) as count FROM user_profile').get();
-    if (profileCount.count === 0) {
+    // 兼容旧数据库：尝试添加 username, password 列
+    try { db.exec(`ALTER TABLE user_profile ADD COLUMN username TEXT DEFAULT 'admin'`); } catch(e) {}
+    try { db.exec(`ALTER TABLE user_profile ADD COLUMN password TEXT`); } catch(e) {}
+
+    // 确保有一条 id=1 的记录并有默认凭据
+    const profile = db.prepare('SELECT * FROM user_profile WHERE id = 1').get();
+    if (!profile) {
+        const hashedPassword = bcrypt.hashSync('admin123', 10);
         db.prepare(`
-            INSERT INTO user_profile (id, nickname, bio, avatar_url) 
-            VALUES (1, 'Admin', '这是我的个人简介，点击编辑按钮可以修改。', '/img/default-avatar.png')
-        `).run();
-        console.log('✔ 已生成默认博主资料记录');
+            INSERT INTO user_profile (id, nickname, bio, avatar_url, username, password)
+            VALUES (1, 'Admin', '这是我的个人简介，点击编辑按钮可以修改。', '/img/default-avatar.png', 'admin', ?)
+        `).run(hashedPassword);
+        console.log('✔ 已生成默认管理员账户 admin/admin123');
+    } else {
+        // 如果已有记录但缺少凭据，则补上默认值
+        if (!profile.username) {
+            db.prepare(`UPDATE user_profile SET username = 'admin' WHERE id = 1`).run();
+        }
+        if (!profile.password) {
+            const hashedPassword = bcrypt.hashSync('admin123', 10);
+            db.prepare(`UPDATE user_profile SET password = ? WHERE id = 1`).run(hashedPassword);
+        }
     }
 
-    // --- 5. 新增：创建分类和标签表 ---
+    // --- 4. 创建分类和标签表 ---
     db.exec(`
         CREATE TABLE IF NOT EXISTS categories (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -75,32 +89,19 @@ function initDatabase() {
         );
     `);
 
-    // --- 插入默认分类 (修正这里的表名) ---
+    // 添加默认分类和标签
     const defaultCats = ['技术', '生活', '杂谈', '默认分类'];
-    // 关键点：这里必须改成 categories，不能是 category_metadata
     const checkCatStmt = db.prepare("SELECT COUNT(*) as count FROM categories WHERE name = ?");
     const insertCatStmt = db.prepare("INSERT INTO categories (name) VALUES (?)");
-
     defaultCats.forEach(cat => {
-        const result = checkCatStmt.get(cat);
-        if (result.count === 0) {
-            insertCatStmt.run(cat);
-            console.log(`初始化默认分类: ${cat}`);
-        }
+        if (checkCatStmt.get(cat).count === 0) insertCatStmt.run(cat);
     });
 
-    // --- 插入默认标签 (修正这里的表名) ---
     const defaultTags = ['JavaScript', 'Node.js', 'HTML', 'CSS', 'Vue'];
-    // 关键点：这里必须改成 tags，不能是 tag_metadata
     const checkTagStmt = db.prepare("SELECT COUNT(*) as count FROM tags WHERE name = ?");
     const insertTagStmt = db.prepare("INSERT INTO tags (name) VALUES (?)");
-
     defaultTags.forEach(tag => {
-        const result = checkTagStmt.get(tag);
-        if (result.count === 0) {
-            insertTagStmt.run(tag);
-            console.log(`初始化默认标签: ${tag}`);
-        }
+        if (checkTagStmt.get(tag).count === 0) insertTagStmt.run(tag);
     });
     
     console.log('Database initialized successfully.');
