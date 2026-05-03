@@ -220,6 +220,14 @@ class ArticleModel {
             tags.forEach(tag => insertTag.run(tag));
         }
     }
+
+    /**
+     * 获取文章归档列表
+     */
+    static async getArchive() {
+        // 按时间从晚到早（倒序）排序
+        return db.prepare('SELECT id, title, created_at FROM articles ORDER BY created_at DESC').all();
+    }
 }
 
 module.exports = ArticleModel;

@@ -5,29 +5,32 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>探索现代前端开发趋势 - 我的个人博客</title>
     <link rel="stylesheet" href="/css/style.css">
+    <!-- 引入 Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
 
     <!-- 顶部导航 -->
     <header>
-    <div class="container nav-container">
-        <div class="logo"><a href="/">MyBlog</a></div>
-        <div style="display: flex; align-items: center;">
-            <nav class="nav-links">
-                <a href="/">首页</a>
-                <a href="/admin">管理</a>
-                <a href="/editor">发布文章</a>
-                <a href="/about">关于我</a>
-            </nav>
-            
-            <!-- 新增：深色模式切换按钮 -->
-            <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
-                <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
-                <svg id="sun-icon" viewBox="0 0 24 24" style="display: none; width:20px; height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 1 -4.992 5L7 12a5 5 0 0 1 5 -5zM2 13h2a1 1 0 0 0 0 -2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0 -2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0 -2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0 -2 0zM5.99 4.58a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414L5.99 4.58zm12.02 12.02a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414l-1.414 -1.414zm-12.02 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414a1 1 0 0 0 -1.414 -1.414zm14.14 -12.726a1 1 0 0 0 -1.414 -1.414l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414z" /></svg>
-            </button>
+        <div class="container nav-container">
+            <div class="logo"><a href="/">MyBlog</a></div>
+            <div style="display: flex; align-items: center;">
+                <nav class="nav-links">
+                    <a href="/">首页</a>
+                    <a href="/archive">归档</a>
+                    <a href="/admin">管理</a>
+                    <a href="/editor">发布文章</a>
+                    <a href="/about">关于我</a>
+                </nav>
+                
+                <!-- 新增：深色模式切换按钮 -->
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
+                    <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
+                    <svg id="sun-icon" viewBox="0 0 24 24" style="display: none; width:20px; height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 1 -4.992 5L7 12a5 5 0 0 1 5 -5zM2 13h2a1 1 0 0 0 0 -2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0 -2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0 -2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0 -2 0zM5.99 4.58a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414L5.99 4.58zm12.02 12.02a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414l-1.414 -1.414zm-12.02 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414a1 1 0 0 0 -1.414 -1.414zm14.14 -12.726a1 1 0 0 0 -1.414 -1.414l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414z" /></svg>
+                </button>
+            </div>
         </div>
-    </div>
-</header>
+    </header>
 
     <!-- 主体内容：详情页通常不需要侧边栏，或者侧边栏可以简化，这里采用单列居中布局以提升阅读体验 -->
     <main class="container" style="max-width: 800px; margin-top: 40px; margin-bottom: 60px;">
@@ -37,8 +40,9 @@
             <header class="post-header">
                 <h1 class="post-title" id="article-title">加载中...</h1>
                 <div class="post-meta">
-                    <span id="post-date">📅 --</span>
-                    <span id="post-category">📂 --</span>
+                    <span id="post-date"><i class="far fa-calendar-alt"></i> --</span>
+                    <span id="post-category"><i class="fas fa-folder"></i> --</span>
+                    <span id="post-views"><i class="fas fa-eye"></i> -- 阅读</span>
                 </div>
             </header>
 
@@ -128,9 +132,11 @@
 
                 // 1. 填充基础信息
                 document.getElementById('article-title').textContent = article.title || '无标题';
-                document.getElementById('post-date').textContent = `📅 ${article.created_at ? new Date(article.created_at).toLocaleDateString() : '未知日期'}`;
-                document.getElementById('post-category').textContent = `📂 ${article.category || '未分类'}`;
-
+                document.getElementById('post-date').innerHTML = `<i class="far fa-calendar-alt"></i> ${article.created_at ? new Date(article.created_at).toLocaleDateString() : '未知日期'}`;
+                document.getElementById('post-category').innerHTML = `<i class="fas fa-folder"></i> ${article.category || '未分类'}`;
+                // 显示阅读量（使用 eye 图标）
+                document.getElementById('post-views').innerHTML = `<i class="fas fa-eye"></i> ${article.view_count ?? 0} 阅读`;
+                
                 // 2. 渲染正文（解决 marked 报错的核心位置）
                 const contentContainer = document.getElementById('article-content');
                 const rawContent = article.content || ''; // 如果 content 为空，强制转为空字符串

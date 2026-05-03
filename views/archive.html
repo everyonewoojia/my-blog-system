@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文章归档 - 我的个人博客</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .archive-container { max-width: 800px; margin: 50px auto; padding: 20px; }
+        .archive-item { margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #eee; }
+        .archive-date { color: #888; margin-right: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container nav-container">
+            <div class="logo"><a href="/">MyBlog</a></div>
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <nav class="nav-links">
+                    <a href="/">首页</a>
+                    <a href="/archive" class="active">归档</a>
+                    <a href="/admin">管理</a>
+                    <a href="/editor">发布文章</a>
+                    <a href="/about">关于我</a>
+                </nav>
+                <button id="theme-toggle" class="theme-toggle-btn">
+                    <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>
+                    <svg id="sun-icon" viewBox="0 0 24 24" style="display:none;width:20px;height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 1 0 0-2H2a1 1 0 1 0 0 2zm18 0h2a1 1 0 1 0 0-2h-2a1 1 0 1 0 0 2zM11 2v2a1 1 0 1 0 2 0V2a1 1 0 1 0-2 0zm0 18v2a1 1 0 1 0 2 0v-2a1 1 0 1 0-2 0zM5.99 4.58a1 1 0 1 0-1.41 1.41l1.06 1.06a1 1 0 1 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 1 0-1.41 1.41l1.06 1.06a1 1 0 1 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 1 0-1.41-1.41l-1.06 1.06a1 1 0 1 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 1 0-1.41-1.41l-1.06 1.06a1 1 0 1 0 1.41 1.41l1.06-1.06z"/></svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <div class="archive-container">
+        <h2>文章归档</h2>
+        <div id="archive-list">加载中...</div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 MyBlog. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        async function loadArchive() {
+            const list = document.getElementById('archive-list');
+            try {
+                const res = await fetch('/api/articles/archive');
+                const result = await res.json();
+                if (result.success) {
+                    list.innerHTML = result.data.map(article => `
+                        <div class="archive-item">
+                            <span class="archive-date">${new Date(article.created_at).toLocaleDateString()}</span>
+                            <a href="/post?id=${article.id}">${article.title}</a>
+                        </div>
+                    `).join('');
+                }
+            } catch (e) { list.innerHTML = '加载失败'; }
+        }
+        loadArchive();
+    </script>
+</body>
+</html>

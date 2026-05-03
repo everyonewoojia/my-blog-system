@@ -8,6 +8,8 @@ const articleController = require('../controllers/articleController');
 router.get('/stats', articleController.getStats);
 router.get('/tag-stats', articleController.getTagStats);
 router.get('/metadata', articleController.getMetadata);
+// 获取文章归档
+router.get('/archive', articleController.getArchive);
 
 // --- 新增：持久化保存分类和标签 ---
 // 对应前端 fetch('/api/articles/categories', ...)

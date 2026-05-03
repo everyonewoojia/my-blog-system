@@ -31,6 +31,10 @@ app.get('/admin', (req, res) => {
     res.sendFile(path.join(__dirname, 'views', 'admin.html'));
 });
 
+app.get('/archive', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'archive.html'));
+});
+
 app.get('/about', (req, res) => res.sendFile(path.join(__dirname, 'views', 'about.html')));
 
 // 2. API 接口路由
@@ -38,6 +42,16 @@ app.use('/api', apiRoutes);
 
 // 3. 管理后台页面路由 (修改挂载点为 /admin，对应你报错的路径前缀)
 app.use('/admin', articleRoutes); 
+
+// 4. 静态页面路由
+app.get('/archive', (req, res) => {
+    res.sendFile(path.join(__dirname, 'views', 'archive.html'));
+});
+
+app.get('/archive', (req, res) => {
+    console.log('✅ archive route hit');
+    res.sendFile(path.join(__dirname, 'views', 'archive.html'));
+});
 
 function startServer() {
     try {

@@ -244,6 +244,20 @@ const articleController = {
             }
             res.status(500).json({ success: false, message: '服务器错误' });
         }
+    },
+
+    /**
+     * 获取文章归档
+     * GET /api/articles/archive
+     */
+    getArchive: async (req, res) => {
+        try {
+            const articles = await Article.getArchive();
+            res.json({ success: true, data: articles });
+        } catch (err) {
+            console.error("归档查询失败:", err);
+            res.status(500).json({ success: false, message: '服务器内部错误' });
+        }
     }
 };
 
