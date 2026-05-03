@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>发布文章 - 我的个人博客</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         /* 编辑器页面特定样式补充 */
         .editor-header {
@@ -59,9 +60,9 @@
 
         /* 标题：强制占 50% */
         .input-title {
-            flex: 0 0 50% !important; /* 不放大、不缩小、基准50% */
+            flex: 0 0 50% !important;
             width: 50%;
-            min-width: 0; /* 关键：允许内容收缩，防止撑开 */
+            min-width: 0;
             border: none !important;
             border-right: 1px solid var(--border-color) !important;
             padding: 0 15px;
@@ -70,37 +71,32 @@
 
         /* 分类与标签：各强制占 25% */
         .custom-select {
-            flex: 0 0 25% !important; /* 不放大、不缩小、基准25% */
+            flex: 0 0 25% !important;
             width: 25%;
-            min-width: 0; /* 关键：防止被长标签撑开 */
+            min-width: 0;
             position: relative;
             box-sizing: border-box;
-            display: flex; /* 确保触发器占满 */
+            display: flex;
         }
 
         #category-select-wrapper {
             border-right: 1px solid var(--border-color);
         }
 
-        /* 核心优化：处理标签过多不溢出 */
         .select-trigger {
             flex: 1;
             width: 100%;
             height: 100%;
-            display: block; /* 改为 block 以便省略号生效 */
-            line-height: 46px; /* 垂直居中 */
+            display: block;
+            line-height: 46px;
             padding: 0 15px;
             cursor: pointer;
-            
-            /* 终极截断三件套 */
-            white-space: nowrap; 
-            overflow: hidden; 
-            text-overflow: ellipsis; 
-            
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
             box-sizing: border-box;
         }
 
-        /* 2. 下拉栏左右边距与内部对齐 */
         .select-dropdown {
             display: none;
             position: absolute;
@@ -114,7 +110,6 @@
             box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
 
-        /* 3. 蓝勾显示逻辑修复 */
         .dropdown-item {
             padding: 10px 15px;
             display: flex;
@@ -131,7 +126,6 @@
             margin-right: 10px;
         }
 
-        /* 选中的颜色和勾号 */
         .dropdown-item.selected .item-text {
             color: #007AFF;
             font-weight: 500;
@@ -142,10 +136,9 @@
             color: #007AFF;
             font-weight: bold;
             font-size: 1.1rem;
-            flex-shrink: 0; /* 确保勾号不被挤压 */
+            flex-shrink: 0; 
         }
 
-        /* 4. 新增输入框防溢出 */
         .dropdown-add {
             padding: 8px;
             display: flex;
@@ -155,7 +148,7 @@
 
         .dropdown-add input {
             flex: 1;
-            min-width: 0; /* 允许在小容器内缩得更小 */
+            min-width: 0;
             padding: 4px 8px;
             border: 1px solid var(--border-color);
             border-radius: 4px;
@@ -164,13 +157,13 @@
         }
 
         #publish-btn {
-            background-color: #007AFF; /* 经典的蓝色 */
+            background-color: #007AFF; 
             color: white;
             border: none;
             padding: 12px 30px;
             font-size: 1rem;
             font-weight: 500;
-            border-radius: 50px; /* 大圆角矩形 */
+            border-radius: 50px; 
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
@@ -191,11 +184,9 @@
             <div class="logo"><a href="/">MyBlog</a></div>
             <div style="display: flex; align-items: center; gap: 20px;">
                 <nav class="nav-links">
-                    <a href="/">首页</a>
-                    <a href="/archive">归档</a>
-                    <a href="/admin/articles">管理</a>
+                    <a href="/admin#articles-section">文章管理</a>
+                    <a href="/admin#comments-section">评论管理</a>
                     <a href="/editor" class="active">发布文章</a>
-                    <a href="/about">关于我</a>
                 </nav>
                 <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
                     <svg id="moon-icon" viewBox="0 0 24 24"><path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>

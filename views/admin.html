@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>文章管理 - 我的个人博客</title>
+    <title>管理后台 - 我的个人博客</title>
     <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         .admin-main {
             padding-top: 40px;
@@ -91,7 +93,6 @@
             letter-spacing: 1px;
         }
 
-        /* 调整列宽（加入阅读量列） */
         .col-title { width: 35%; }
         .col-cate  { width: 12%; }
         .col-views { width: 8%; }
@@ -144,6 +145,28 @@
             background-color: #FF3B30;
             color: white;
         }
+
+        /* 返回游客视图按钮 - 位于工具栏 */
+        .btn-return-visitor {
+            padding: 6px 15px;
+            background-color: var(--card-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .btn-return-visitor:hover {
+            background-color: #007AFF;
+            color: white;
+            border-color: #007AFF;
+        }
+
+        /* 模态框 */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -195,10 +218,13 @@
             border-radius: 20px;
             cursor: pointer;
         }
+
         .admin-toolbar {
             display: flex;
             justify-content: flex-end;
+            align-items: center;
             margin-bottom: 20px;
+            gap: 10px;
         }
     </style>
 </head>
@@ -207,16 +233,13 @@
     <header>
         <div class="container nav-container">
             <div class="logo"><a href="/">MyBlog</a></div>
-            
             <div style="display: flex; align-items: center; gap: 20px;">
-                <nav class="nav-links">
-                    <a href="/">首页</a>
-                    <a href="/archive">归档</a>
-                    <a href="/admin/articles" class="active">管理</a>
+                <!-- 固定管理导航 -->
+                <nav class="nav-links" id="nav-links">
+                    <a href="#articles-section" id="nav-articles" class="active">文章管理</a>
+                    <a href="#comments-section" id="nav-comments">评论管理</a>
                     <a href="/editor">发布文章</a>
-                    <a href="/about">关于我</a>
                 </nav>
-                
                 <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
                     <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px; height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" /></svg>
                     <svg id="sun-icon" viewBox="0 0 24 24" style="display: none; width:20px; height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 1 -4.992 5L7 12a5 5 0 0 1 5 -5zM2 13h2a1 1 0 0 0 0 -2H2a1 1 0 0 0 0 2zm18 0h2a1 1 0 0 0 0 -2h-2a1 1 0 0 0 0 2zM11 2v2a1 1 0 0 0 2 0V2a1 1 0 0 0 -2 0zm0 18v2a1 1 0 0 0 2 0v-2a1 1 0 0 0 -2 0zM5.99 4.58a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414L5.99 4.58zm12.02 12.02a1 1 0 0 0 -1.414 1.414l1.414 1.414a1 1 0 0 0 1.414 -1.414l-1.414 -1.414zm-12.02 0l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414a1 1 0 0 0 -1.414 -1.414zm14.14 -12.726a1 1 0 0 0 -1.414 -1.414l-1.414 1.414a1 1 0 0 0 1.414 1.414l1.414 -1.414z" /></svg>
@@ -257,53 +280,58 @@
     <main class="container admin-main" id="admin-content" style="display:none;">
         <div class="admin-toolbar">
             <span style="margin-right:auto;color:var(--text-secondary);" id="welcome-msg"></span>
-            <button class="btn-secondary" style="margin-right:10px;" onclick="openCredentialModal()">修改凭据</button>
+            <button class="btn-secondary" onclick="openCredentialModal()">修改凭据</button>
             <button class="btn-secondary" onclick="logout()">退出登录</button>
+            <a href="/" class="btn-return-visitor"><i class="fas fa-home"></i> 返回游客视图</a>
         </div>
 
-        <div class="admin-header">
-            <h2>文章管理</h2>
-            <div class="header-actions">
-                <button class="action-btn btn-edit" onclick="window.location.href='/editor'">+ 发布新文章</button>
+        <!-- 文章管理区块 -->
+        <section id="articles-section">
+            <div class="admin-header">
+                <h2>文章管理</h2>
+                <div class="header-actions">
+                    <button class="action-btn btn-edit" onclick="window.location.href='/editor'">+ 发布新文章</button>
+                </div>
             </div>
-        </div>
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th class="col-title">标题</th>
+                            <th class="col-cate">分类</th>
+                            <th class="col-views">阅读量</th>
+                            <th class="col-status">状态</th>
+                            <th class="col-date">发布时间</th>
+                            <th class="col-action">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-article-list"></tbody>
+                </table>
+            </div>
+        </section>
 
-        <div class="admin-table-container">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th class="col-title">标题</th>
-                        <th class="col-cate">分类</th>
-                        <th class="col-views">阅读量</th>
-                        <th class="col-status">状态</th>
-                        <th class="col-date">发布时间</th>
-                        <th class="col-action">操作</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-article-list"></tbody>
-            </table>
-        </div>
-
-        <div class="admin-header" style="margin-top: 40px;">
-            <h2>评论管理</h2>
-        </div>
-        <div class="admin-table-container">
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th style="width: 15%;">评论人</th>
-                        <th style="width: 40%;">评论内容</th>
-                        <th style="width: 20%;">所属文章</th>
-                        <th style="width: 15%;">发布时间</th>
-                        <th style="width: 10%;">操作</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-comment-list"></tbody>
-            </table>
-        </div>
+        <!-- 评论管理区块 -->
+        <section id="comments-section" style="display:none; margin-top: 20px;">
+            <div class="admin-header">
+                <h2>评论管理</h2>
+            </div>
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 15%;">评论人</th>
+                            <th style="width: 40%;">评论内容</th>
+                            <th style="width: 20%;">所属文章</th>
+                            <th style="width: 15%;">发布时间</th>
+                            <th style="width: 10%;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="admin-comment-list"></tbody>
+                </table>
+            </div>
+        </section>
     </main>
 
-    <!-- 底部版权 -->
     <footer>
         <div class="container">
             <p>&copy; 2026 MyBlog. All rights reserved.</p>
@@ -312,14 +340,56 @@
 
     <script src="/js/script.js"></script>
     <script>
+        // ========== 初始化 ==========
         document.addEventListener('DOMContentLoaded', () => {
             checkLoginStatus();
+            // 根据 URL 锚点切换显示的表格
+            handleHashChange();
+            // 监听锚点变化
+            window.addEventListener('hashchange', handleHashChange);
         });
 
-        // ========== 登录相关 ==========
-        /**
-         * 检查登录状态
-         */
+        // ========== 表格显示切换逻辑 ==========
+        function showSection(sectionId) {
+            // 隐藏所有区块
+            document.getElementById('articles-section').style.display = 'none';
+            document.getElementById('comments-section').style.display = 'none';
+            // 显示选中的区块
+            document.getElementById(sectionId).style.display = 'block';
+            // 更新导航 active 状态
+            document.querySelectorAll('#nav-links a').forEach(a => a.classList.remove('active'));
+            if (sectionId === 'articles-section') {
+                document.getElementById('nav-articles').classList.add('active');
+            } else if (sectionId === 'comments-section') {
+                document.getElementById('nav-comments').classList.add('active');
+            }
+        }
+
+        function handleHashChange() {
+            const hash = window.location.hash; // 如 "#comments-section"
+            if (hash === '#comments-section') {
+                showSection('comments-section');
+                if (document.getElementById('admin-content').style.display !== 'none') {
+                    loadAdminComments(); // 切换到评论时加载数据
+                }
+            } else {
+                showSection('articles-section');
+                if (document.getElementById('admin-content').style.display !== 'none') {
+                    loadAdminArticles(); // 切换到文章时加载数据
+                }
+            }
+        }
+
+        // 导航链接点击事件（防止页面滚动时触发锚点默认行为）
+        document.querySelectorAll('#nav-links a[href^="#"]').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('href').substring(1);
+                window.location.hash = targetId; // 更新 hash，触发 handleHashChange
+            });
+        });
+
+        // ========== 登录状态检查 ==========
         async function checkLoginStatus() {
             try {
                 const res = await fetch('/api/admin/check');
@@ -328,9 +398,13 @@
                     document.getElementById('login-modal').style.display = 'none';
                     document.getElementById('admin-content').style.display = 'block';
                     document.getElementById('welcome-msg').textContent = `当前用户：${data.username}`;
-                    // 加载管理数据
-                    loadAdminArticles();
-                    loadAdminComments();
+                    // 根据当前显示的区块加载数据
+                    if (document.getElementById('articles-section').style.display !== 'none') {
+                        loadAdminArticles();
+                    }
+                    if (document.getElementById('comments-section').style.display !== 'none') {
+                        loadAdminComments();
+                    }
                 } else {
                     document.getElementById('login-modal').style.display = 'flex';
                     document.getElementById('admin-content').style.display = 'none';
@@ -340,9 +414,7 @@
             }
         }
 
-        /**
-         * 登录
-         */
+        // ========== 登录 ==========
         async function doLogin() {
             const username = document.getElementById('login-username').value.trim();
             const password = document.getElementById('login-password').value;
@@ -360,7 +432,7 @@
                 const data = await res.json();
                 if (data.success) {
                     errorEl.textContent = '';
-                    checkLoginStatus();  // 刷新界面
+                    checkLoginStatus();
                 } else {
                     errorEl.textContent = data.message || '登录失败';
                 }
@@ -369,9 +441,7 @@
             }
         }
 
-        /**
-         * 登出
-         */
+        // ========== 登出 ==========
         async function logout() {
             await fetch('/api/admin/logout');
             document.getElementById('login-username').value = '';
@@ -379,7 +449,7 @@
             checkLoginStatus();
         }
 
-        // 凭据修改
+        // ========== 凭据修改 ==========
         function openCredentialModal() {
             document.getElementById('credential-modal').style.display = 'flex';
         }
@@ -387,9 +457,6 @@
             document.getElementById('credential-modal').style.display = 'none';
             document.getElementById('credential-error').textContent = '';
         }
-        /**
-         * 修改凭据
-         */
         async function updateCredentials() {
             const username = document.getElementById('new-username').value.trim();
             const password = document.getElementById('new-password').value;
@@ -417,16 +484,12 @@
             }
         }
 
-        /**
-         * 加载文章列表
-         */
+        // ========== 文章列表 ==========
         async function loadAdminArticles() {
             const listContainer = document.getElementById('admin-article-list');
             try {
-                // 指向 API 路由
                 const response = await fetch('/api/articles');
                 const result = await response.json();
-
                 if (result.success && result.data.length > 0) {
                     listContainer.innerHTML = result.data.map(article => `
                         <tr>
@@ -442,75 +505,45 @@
                         </tr>
                     `).join('');
                 } else {
-                    listContainer.innerHTML = '<tr><td colspan="5" style="text-align: center;">暂无文章</td></tr>';
+                    listContainer.innerHTML = '<tr><td colspan="6" style="text-align: center;">暂无文章</td></tr>';
                 }
             } catch (error) {
-                listContainer.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">加载失败</td></tr>';
+                listContainer.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">加载失败</td></tr>';
             }
         }
 
-        /**
-         * 编辑文章
-         * @param {number} id 文章 ID
-         */
         function editArticle(id) {
-            console.log("正在准备编辑文章，ID:", id); // 用于调试，确认 ID 是否抓取成功
-            if (!id) {
-                alert("无法获取文章 ID");
-                return;
-            }
-            // 正确跳转到编辑页面，并携带查询参数 id
+            if (!id) { alert("无法获取文章 ID"); return; }
             window.location.href = `/editor?id=${id}`;
         }
 
-        /**
-         * 删除文章
-         * @param {number} id 文章 ID
-         */
         async function deleteArticle(id) {
-            // 1. 用户确认弹窗
-            if (!confirm('警告：删除文章将同时删除其下所有评论！确定要继续吗？')) {
-                return;
-            }
-
+            if (!confirm('警告：删除文章将同时删除其下所有评论！确定要继续吗？')) return;
             try {
-                // 2. 发送 DELETE 请求
-                const response = await fetch(`/api/articles/${id}`, {
-                    method: 'DELETE'
-                });
-
+                const response = await fetch(`/api/articles/${id}`, { method: 'DELETE' });
                 const result = await response.json();
-
-                // 3. 处理结果
                 if (result.success) {
                     alert('文章已删除！');
-                    // 4. 自动刷新页面显示新结果
-                    window.location.reload(); 
-                    // 或者调用你之前写的加载函数，如：loadAdminArticles();
+                    loadAdminArticles(); // 重新加载
                 } else {
                     alert('删除失败：' + result.message);
                 }
             } catch (error) {
-                console.error('网络请求出错:', error);
                 alert('无法连接到服务器，请检查网络');
             }
         }
 
-        /**
-         * 加载评论列表
-         */
+        // ========== 评论列表 ==========
         async function loadAdminComments() {
             const tbody = document.getElementById('admin-comment-list');
             try {
-                // 使用你定义的接口名
                 const response = await fetch('/api/comments/admin/all');
                 const result = await response.json();
-
                 if (result.success) {
                     tbody.innerHTML = result.data.map(comment => `
                         <tr>
                             <td>${comment.author_name}</td>
-                            <td class="comment-content-cell">${comment.content}</td>
+                            <td>${comment.content}</td>
                             <td><small>${comment.article_title || '（文章已删除）'}</small></td>
                             <td>${new Date(comment.created_at).toLocaleDateString()}</td>
                             <td>
@@ -524,33 +557,18 @@
             }
         }
 
-        /**
-         * 删除评论
-         * @param {number} id 评论 ID
-         */
         async function deleteComment(id) {
-            // 1. 确认弹窗
             if (!confirm('确定要删除这条评论吗？此操作不可撤销。')) return;
-
             try {
-                const response = await fetch(`/api/comments/${id}`, {
-                    method: 'DELETE'
-                });
-                
+                const response = await fetch(`/api/comments/${id}`, { method: 'DELETE' });
                 const result = await response.json();
-
-                // 2. 判断后端返回的结果
                 if (result.success === true || result.message === '评论已删除') {
-                    // 3. 成功反馈
                     alert('删除成功！');
-                    // 4. 自动刷新列表数据（无需刷新整个网页，只刷新表格内容）
-                    loadAdminComments(); 
+                    loadAdminComments();
                 } else {
-                    // 如果后端返回 success: false，则显示后端给的错误信息
                     alert('删除失败：' + (result.message || '未知原因'));
                 }
             } catch (error) {
-                console.error('删除请求出错:', error);
                 alert('网络请求失败，请稍后再试');
             }
         }
