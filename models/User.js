@@ -31,17 +31,18 @@ class UserModel {
      */
     static async updateProfile(data) {
         try {
+            // 只更新资料字段，不覆盖 username/password
             const stmt = db.prepare(`
-                INSERT OR REPLACE INTO user_profile (id, nickname, bio, avatar_url, updated_at)
-                VALUES (1, @nickname, @bio, @avatar_url, CURRENT_TIMESTAMP)
+                UPDATE user_profile
+                SET nickname = @nickname, bio = @bio, avatar_url = @avatar_url,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE id = 1
             `);
-            
             stmt.run({
                 nickname: data.nickname,
                 bio: data.bio,
                 avatar_url: data.avatar_url
             });
-            
             return true;
         } catch (error) {
             console.error('Database Error (updateProfile):', error);

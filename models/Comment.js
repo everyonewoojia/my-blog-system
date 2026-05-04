@@ -19,7 +19,7 @@ class Comment {
      * @param {number} articleId 
      */
     static getByArticleId(articleId) {
-        return db.prepare('SELECT * FROM comments WHERE article_id = ? ORDER BY created_at DESC').all(articleId);
+        return db.prepare('SELECT * FROM comments WHERE article_id = ? ORDER BY created_at DESC, id DESC').all(articleId);
     }
     /**
      * 获取所有评论（用于后台管理）

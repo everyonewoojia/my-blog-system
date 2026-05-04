@@ -59,7 +59,6 @@ class ArticleModel {
         try {
             const stmt = db.prepare('SELECT * FROM articles WHERE id = ?');
             return stmt.get(id); // 获取单行数据
-            return article;
         } catch (error) {
             console.error('Database Error (findById):', error);
             throw error;
@@ -225,8 +224,7 @@ class ArticleModel {
      * 获取文章归档列表
      */
     static async getArchive() {
-        // 按时间从晚到早（倒序）排序
-        return db.prepare('SELECT id, title, created_at FROM articles ORDER BY created_at DESC').all();
+        return db.prepare('SELECT id, title, created_at FROM articles ORDER BY created_at DESC, id DESC').all();
     }
 }
 

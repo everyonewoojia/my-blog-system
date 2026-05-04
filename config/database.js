@@ -3,8 +3,10 @@ const Database = require('better-sqlite3');
 const path = require('path');
 const bcrypt = require('bcryptjs');   // 用于初始化默认密码
 
-// 数据库文件路径
-const DB_PATH = path.join(__dirname, '..', 'blog.db');
+// 测试环境使用内存数据库，避免污染真实文件
+const DB_PATH = process.env.NODE_ENV === 'test'
+    ? ':memory:'
+    : path.join(__dirname, '..', 'blog.db');
 
 // 创建数据库连接
 const db = new Database(DB_PATH);
@@ -41,14 +43,15 @@ function initDatabase() {
         )
     `);
 
-    // --- 3. 创建个人信息表 ---
-    // 使用 CHECK (id = 1) 确保这是唯一的博主资料
+    // --- 3. 个人信息表（含管理员凭据） ---
     db.exec(`
         CREATE TABLE IF NOT EXISTS user_profile (
-            id INTEGER PRIMARY KEY CHECK (id = 1), 
+            id INTEGER PRIMARY KEY CHECK (id = 1),
             nickname TEXT DEFAULT '博主名称',
             bio TEXT DEFAULT '欢迎来到我的个人博客',
             avatar_url TEXT DEFAULT '/img/default-avatar.png',
+            username TEXT DEFAULT 'admin',
+            password TEXT,
             updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     `);
