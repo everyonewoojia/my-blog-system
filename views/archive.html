@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <title>文章归档 - 我的个人博客</title>
     <link rel="stylesheet" href="/css/style.css">
-    <style>
-        .archive-container { max-width: 800px; margin: 50px auto; padding: 20px; }
-        .archive-item { margin-bottom: 15px; padding: 10px; border-bottom: 1px solid #eee; }
-        .archive-date { color: #888; margin-right: 20px; }
-    </style>
+    <!-- Font Awesome 图标库（全站统一） -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <header>
@@ -21,7 +18,7 @@
                     <a href="/about">关于我</a>
                     <a href="/admin">管理</a>
                 </nav>
-                <button id="theme-toggle" class="theme-toggle-btn">
+                <button id="theme-toggle" class="theme-toggle-btn" aria-label="切换深色模式">
                     <svg id="moon-icon" viewBox="0 0 24 24" style="width:20px;height:20px;"><path fill="currentColor" d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z"/></svg>
                     <svg id="sun-icon" viewBox="0 0 24 24" style="display:none;width:20px;height:20px;"><path fill="currentColor" d="M12 7a5 5 0 1 0 0 10 5 5 0 0 0 0-10zM2 13h2a1 1 0 1 0 0-2H2a1 1 0 1 0 0 2zm18 0h2a1 1 0 1 0 0-2h-2a1 1 0 1 0 0 2zM11 2v2a1 1 0 1 0 2 0V2a1 1 0 1 0-2 0zm0 18v2a1 1 0 1 0 2 0v-2a1 1 0 1 0-2 0zM5.99 4.58a1 1 0 1 0-1.41 1.41l1.06 1.06a1 1 0 1 0 1.41-1.41L5.99 4.58zm12.37 12.37a1 1 0 1 0-1.41 1.41l1.06 1.06a1 1 0 1 0 1.41-1.41l-1.06-1.06zm1.06-10.96a1 1 0 1 0-1.41-1.41l-1.06 1.06a1 1 0 1 0 1.41 1.41l1.06-1.06zM7.05 18.36a1 1 0 1 0-1.41-1.41l-1.06 1.06a1 1 0 1 0 1.41 1.41l1.06-1.06z"/></svg>
                 </button>
@@ -29,10 +26,12 @@
         </div>
     </header>
 
-    <div class="archive-container">
-        <h2>文章归档</h2>
-        <div id="archive-list">加载中...</div>
-    </div>
+    <main class="archive-container">
+        <h2 style="text-align:center; margin-bottom: 30px; font-size: 2rem;">文章归档</h2>
+        <div id="archive-list" style="display: flex; flex-direction: column; gap: 5px;">
+            加载中...
+        </div>
+    </main>
 
     <footer>
         <div class="container">
@@ -40,23 +39,55 @@
         </div>
     </footer>
 
+    <!-- 全局脚本（包含主题切换等） -->
+    <script src="/js/script.js"></script>
     <script>
-        async function loadArchive() {
+        // 归档数据加载
+        (async function loadArchive() {
             const list = document.getElementById('archive-list');
             try {
                 const res = await fetch('/api/articles/archive');
                 const result = await res.json();
-                if (result.success) {
-                    list.innerHTML = result.data.map(article => `
-                        <div class="archive-item">
-                            <span class="archive-date">${new Date(article.created_at).toLocaleDateString()}</span>
-                            <a href="/post?id=${article.id}">${article.title}</a>
-                        </div>
-                    `).join('');
+                if (!result.success || !result.data.length) {
+                    list.innerHTML = '<p style="text-align:center;">暂无文章</p>';
+                    return;
                 }
-            } catch (e) { list.innerHTML = '加载失败'; }
-        }
-        loadArchive();
+
+                // 按年份分组
+                const grouped = {};
+                result.data.forEach(article => {
+                    const date = new Date(article.created_at);
+                    const year = date.getFullYear();
+                    // 格式化日期为 YYYY-MM-DD
+                    const monthDay = `${year}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+                    if (!grouped[year]) grouped[year] = [];
+                    grouped[year].push({ ...article, displayDate: monthDay });
+                });
+
+                // 年份降序排列
+                const years = Object.keys(grouped).sort((a, b) => b - a);
+
+                let html = '';
+                years.forEach(year => {
+                    html += `<div class="archive-year">${year}</div>`;
+                    grouped[year].forEach(article => {
+                        html += `
+                            <div class="timeline-item">
+                                <div class="timeline-date"><i class="far fa-calendar-alt" style="margin-right: 5px;"></i>${article.displayDate}</div>
+                                <div class="timeline-title">
+                                    <a href="/post?id=${article.id}">${article.title}</a>
+                                </div>
+                            </div>
+                        `;
+                    });
+                });
+
+                list.innerHTML = html;
+            } catch (e) {
+                list.innerHTML = '<p style="text-align:center;">加载失败</p>';
+                console.error(e);
+            }
+        })();
     </script>
 </body>
 </html>

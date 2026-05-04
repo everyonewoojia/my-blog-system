@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的个人博客</title>
     <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
     /* 标签云样式 */
     .tag-cloud {
@@ -137,17 +138,25 @@
             const result = await res.json();
             
             if (result.success && result.data.length > 0) {
-                listContainer.innerHTML = result.data.map(article => `
-                    <article class="article-card">
-                        <h3><a href="/post?id=${article.id}">${article.title}</a></h3>
-                        <div class="article-meta">
-                            <span>📅 ${new Date(article.created_at).toLocaleDateString()}</span>
-                            <span>🏷️ ${article.category}</span>
-                            ${article.tags ? `<span class="article-tags">🔍 ${article.tags}</span>` : ''}
-                        </div>
-                        <p>${article.excerpt || ''}</p>
-                    </article>
-                `).join('');
+                listContainer.innerHTML = result.data.map(article => {
+                    // 处理标签数组
+                    const tagsArray = article.tags ? article.tags.split(',').map(t => t.trim()).filter(t => t) : [];
+                    const tagsHtml = tagsArray.length > 0 
+                        ? `<div class="article-tags-bottom">${tagsArray.map(tag => `<span class="tag-hash">#${tag}</span>`).join(' ')}</div>` 
+                        : '';
+
+                    return `
+                        <article class="article-card">
+                            <h3><a href="/post?id=${article.id}">${article.title}</a></h3>
+                            <div class="article-meta">
+                                <span><i class="far fa-calendar-alt"></i> ${new Date(article.created_at).toLocaleDateString()}</span>
+                                <span><i class="fas fa-folder"></i> ${article.category}</span>
+                            </div>
+                            <p class="article-excerpt">${article.excerpt || ''}</p>
+                            ${tagsHtml}
+                        </article>
+                    `;
+                }).join('');
             } else {
                 listContainer.innerHTML = '<p class="empty-msg">暂无匹配文章</p>';
             }

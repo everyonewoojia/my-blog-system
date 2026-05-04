@@ -226,6 +226,10 @@
             margin-bottom: 20px;
             gap: 10px;
         }
+
+        #admin-content {
+            padding-bottom: 80px;   /* 增大底部间距 */
+        }
     </style>
 </head>
 <body>
@@ -493,7 +497,7 @@
                 if (result.success && result.data.length > 0) {
                     listContainer.innerHTML = result.data.map(article => `
                         <tr>
-                            <td>${article.title}</td>
+                            <td><a href="/post?id=${article.id}" style="color: var(--accent-color); text-decoration: none;">${article.title}</a></td>
                             <td>${article.category || '默认'}</td>
                             <td>${article.view_count ?? 0}</td>
                             <td><span class="status-badge">已发布</span></td>
